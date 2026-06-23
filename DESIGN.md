@@ -125,6 +125,14 @@ All spacing derives from a base of 4px.
 - **Accessibility**: descriptive alt text on the hero image and decorative crops marked hidden.
 - **Motion**: no automatic animation.
 
+### Workflow Explainer
+- **Structure**: concise intro copy paired with an ordered text list of production steps.
+- **Variants**: JPG background path, PNG element path, CSV validation path.
+- **Spacing**: --space-8 top separation from the visual workflow board, --space-4 item padding.
+- **States**: static documentation surface.
+- **Accessibility**: semantic ordered list with readable labels that do not rely on color.
+- **Motion**: none.
+
 ## 6. Motion & Interaction
 
 ### Timing

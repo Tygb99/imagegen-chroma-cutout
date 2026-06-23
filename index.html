@@ -832,6 +832,80 @@
       font-size: 15px;
     }
 
+    .workflow-explainer {
+      display: grid;
+      grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+      gap: var(--space-8);
+      align-items: start;
+      margin-top: var(--space-8);
+      padding-top: var(--space-8);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .workflow-copy h3 {
+      margin: 0 0 var(--space-3);
+      color: var(--text-primary);
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .workflow-copy p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .workflow-copy-list {
+      display: grid;
+      gap: var(--space-3);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: workflow-copy;
+    }
+
+    .workflow-copy-list li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: var(--space-3);
+      align-items: start;
+      padding: var(--space-4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: rgba(3, 6, 5, 0.36);
+      counter-increment: workflow-copy;
+    }
+
+    .workflow-copy-list li::before {
+      content: counter(workflow-copy, decimal-leading-zero);
+      display: inline-grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border-default);
+      border-radius: 999px;
+      color: var(--accent-primary);
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .workflow-copy-list strong {
+      display: block;
+      margin-bottom: var(--space-1);
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .workflow-copy-list p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
     .spec-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -903,6 +977,7 @@
       .evidence-grid,
       .feature-grid,
       .workflow-board,
+      .workflow-explainer,
       .spec-grid {
         grid-template-columns: 1fr;
       }
@@ -1080,6 +1155,48 @@
               <h3>Validate</h3>
               <p>DesignHub CSV의 fileName, uniqueId, contentType, 키워드 수를 업로드 전에 검증합니다.</p>
             </article>
+          </div>
+
+          <div class="workflow-explainer" aria-label="Text workflow guide">
+            <div class="workflow-copy">
+              <h3>텍스트로 남기는 제출 워크플로우</h3>
+              <p>
+                이미지는 보기 좋게, 설명은 검수자가 따라갈 수 있게 분리합니다. 아래 순서를 기준으로
+                배경 JPG와 PNG 요소를 나누고 CSV 오류를 업로드 전에 줄입니다.
+              </p>
+            </div>
+            <ol class="workflow-copy-list">
+              <li>
+                <div>
+                  <strong>원본과 프롬프트를 먼저 보존합니다.</strong>
+                  <p>imagegen 결과물, 생성 프롬프트, batch 경로를 분리해 같은 주제를 다시 만들 수 있게 둡니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>배경은 JPG 전용 흐름으로 보냅니다.</strong>
+                  <p>수면, 물빛, 패턴처럼 화면을 채우는 이미지는 JPG로 저장하고 배경용 metadata만 연결합니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>요소는 PNG 전용 흐름으로 보냅니다.</strong>
+                  <p>피사체가 있는 이미지는 chroma cutout과 Photopea 마무리로 투명도, crop, DPI를 확인합니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>CSV는 DesignHub 규칙에 맞춥니다.</strong>
+                  <p>fileName에는 확장자를 빼고, uniqueId는 업로드 후 받은 값을 유지하며, 키워드는 20~25개로 정리합니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>제출 전 눈검수와 숫자 검수를 같이 봅니다.</strong>
+                  <p>흰색, 어두운 배경, 체커보드 위에서 깨짐을 확인하고 산출 폴더와 CSV가 같은 batch인지 맞춥니다.</p>
+                </div>
+              </li>
+            </ol>
           </div>
         </div>
       </section>

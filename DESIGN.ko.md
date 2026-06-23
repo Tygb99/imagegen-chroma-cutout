@@ -125,6 +125,14 @@ Imagen Design Hub는 시각 asset을 다루는 차분한 제작 벤치처럼 느
 - **접근성**: hero image에는 설명 가능한 alt text를 두고, 장식용 crop은 hidden 처리한다.
 - **모션**: 자동 animation은 쓰지 않는다.
 
+### Workflow Explainer
+- **구조**: 짧은 소개 문구와 production step을 담은 순서형 텍스트 목록을 나란히 배치한다.
+- **변형**: JPG background path, PNG element path, CSV validation path.
+- **간격**: visual workflow board와 --space-8 이상 분리하고, item padding은 --space-4를 쓴다.
+- **상태**: static documentation surface.
+- **접근성**: 색에 의존하지 않는 label과 semantic ordered list를 사용한다.
+- **모션**: 사용하지 않는다.
+
 ## 6. 모션과 상호작용
 
 ### 타이밍
