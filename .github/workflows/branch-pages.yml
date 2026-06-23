@@ -1,0 +1,127 @@
+name: Branch Pages
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: branch-pages-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Publish branch preview
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          repo_name="${GITHUB_REPOSITORY#*/}"
+          owner="${GITHUB_REPOSITORY_OWNER}"
+          ref_name="${GITHUB_REF_NAME}"
+          slug="$(printf '%s' "$ref_name" | tr '[:upper:]' '[:lower:]' | sed -E 's#[^a-z0-9._-]+#-#g; s#^-+##; s#-+$##')"
+          pages_dir="${RUNNER_TEMP}/imagen-design-hub-pages"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git fetch origin gh-pages --depth=1
+            git worktree add "$pages_dir" origin/gh-pages
+          else
+            git worktree add --detach "$pages_dir"
+            git -C "$pages_dir" checkout --orphan gh-pages
+            find "$pages_dir" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          fi
+
+          copy_site() {
+            local target="$1"
+            mkdir -p "$target"
+            rm -rf "$target/index.html" "$target/assets" "$target/README.md" "$target/README.ko.md" "$target/LICENSE"
+            cp index.html "$target/index.html"
+            cp -R assets "$target/assets"
+            [ -f README.md ] && cp README.md "$target/README.md"
+            [ -f README.ko.md ] && cp README.ko.md "$target/README.ko.md"
+            [ -f LICENSE ] && cp LICENSE "$target/LICENSE"
+          }
+
+          mkdir -p "$pages_dir/branches"
+
+          if [ "$ref_name" = "main" ]; then
+            find "$pages_dir" -mindepth 1 -maxdepth 1 ! -name .git ! -name branches -exec rm -rf {} +
+            copy_site "$pages_dir"
+            preview_url="https://${owner}.github.io/${repo_name}/"
+          else
+            target_dir="$pages_dir/branches/$slug"
+            rm -rf "$target_dir"
+            copy_site "$target_dir"
+            preview_url="https://${owner}.github.io/${repo_name}/branches/${slug}/"
+          fi
+
+          BRANCH_INDEX="$pages_dir/branches/index.html" REPO_NAME="$repo_name" OWNER="$owner" python3 - <<'PY'
+          import html
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["BRANCH_INDEX"]).parent
+          entries = []
+          for child in sorted(root.iterdir()):
+              if child.is_dir() and (child / "index.html").exists():
+                  entries.append(child.name)
+
+          links = "\n".join(
+              f'<li><a href="./{html.escape(slug)}/">{html.escape(slug)}</a></li>'
+              for slug in entries
+          ) or "<li>No branch previews have been published yet.</li>"
+
+          repo_name = html.escape(os.environ["REPO_NAME"])
+          owner = html.escape(os.environ["OWNER"])
+          Path(os.environ["BRANCH_INDEX"]).write_text(f"""<!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>{repo_name} branch previews</title>
+            <style>
+              :root {{ color-scheme: dark; font-family: system-ui, sans-serif; background: #08100f; color: #f6fbfa; }}
+              body {{ margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 32px; }}
+              main {{ width: min(720px, 100%); }}
+              a {{ color: #62d5e0; }}
+              ul {{ display: grid; gap: 12px; padding-left: 20px; }}
+              .home {{ display: inline-block; margin-top: 24px; color: #bacbc7; }}
+            </style>
+          </head>
+          <body>
+            <main>
+              <p>{owner} / {repo_name}</p>
+              <h1>Branch previews</h1>
+              <ul>{links}</ul>
+              <a class="home" href="../">Back to main page</a>
+            </main>
+          </body>
+          </html>
+          """, encoding="utf-8")
+          PY
+
+          touch "$pages_dir/.nojekyll"
+          git -C "$pages_dir" add -A
+
+          if git -C "$pages_dir" diff --cached --quiet; then
+            echo "No Pages changes to publish."
+          else
+            git -C "$pages_dir" commit -m "Publish ${ref_name} preview"
+            git -C "$pages_dir" push origin HEAD:gh-pages
+          fi
+
+          echo "Preview: ${preview_url}" >> "$GITHUB_STEP_SUMMARY"

@@ -13,6 +13,14 @@
 
 이 스킬은 source, final, review sheet, prompt log, CSV를 분리해서 DesignHub 업로드 전에 배치를 검수할 수 있게 합니다.
 
+## 공개 페이지 Preview
+
+- Main page: <https://tygb99.github.io/imagen-design-hub/>
+- 브랜치 preview 목록: <https://tygb99.github.io/imagen-design-hub/branches/>
+- 브랜치 URL 패턴: `https://tygb99.github.io/imagen-design-hub/branches/<branch-slug>/`
+
+브랜치 slug는 브랜치 이름을 소문자로 바꾸고 `/` 같은 구분자를 `-`로 바꾼 값입니다. 예를 들어 `codex/clean-landing-reference`는 `/branches/codex-clean-landing-reference/`에 공개됩니다.
+
 ## 의존성
 
 이미지 생성 필수:

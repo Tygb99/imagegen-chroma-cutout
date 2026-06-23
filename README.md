@@ -13,6 +13,14 @@ It covers two common routes:
 
 The skill intentionally keeps source files, final files, review sheets, prompt logs, and CSVs separated so a DesignHub batch can be audited before upload.
 
+## Public Page Previews
+
+- Main page: <https://tygb99.github.io/imagen-design-hub/>
+- Branch preview index: <https://tygb99.github.io/imagen-design-hub/branches/>
+- Branch URL pattern: `https://tygb99.github.io/imagen-design-hub/branches/<branch-slug>/`
+
+Branch slugs are lowercase branch names with `/` and other separators converted to `-`. For example, `codex/clean-landing-reference` is published at `/branches/codex-clean-landing-reference/`.
+
 ## Dependencies
 
 Required for image generation:
