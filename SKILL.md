@@ -9,14 +9,14 @@ description: Use this skill whenever the user wants AI-generated transparent PNG
 
 ## Dependencies
 
-- Required: built-in `image_gen` tool, Python 3.10+, Pillow, and NumPy for `scripts/remove_chroma_key.py`.
-- `scripts/prepare_designhub_unique_upload.py` uses only the Python standard library.
+- Required for generation/cutout: built-in `image_gen` tool, Python 3.10+, Pillow, and NumPy for `scripts/remove_chroma_key.py`.
+- Required for DesignHub/MiriCanvas upload-ready PNG elements: Photopea in a Chromium-family browser plus a Photopea runner. Prefer a project-specific runner when one exists; otherwise use this skill's bundled `scripts/write_photopea_runner.py`.
+- `scripts/write_photopea_runner.py` and `scripts/prepare_designhub_unique_upload.py` use only the Python standard library.
 - Reusable Python code lives in `src/imagegen_chroma_cutout/`; `scripts/` files are thin CLI wrappers kept for copy-paste friendly commands.
 - Install helper dependency in the active environment if needed:
   ```bash
   python3 -m pip install -r requirements.txt
   ```
-- Optional for upload-ready PNG elements: Photopea or a project-specific Photopea runner.
 - Optional for MiriCanvas/DesignHub repos: local project commands such as `node src/cli.mjs photopea-runner --run <run>` and `node src/cli.mjs validate --run <run>`.
 - Do not assume any external helper exists. Prefer this skill's bundled `scripts/remove_chroma_key.py`.
 
@@ -57,12 +57,12 @@ description: Use this skill whenever the user wants AI-generated transparent PNG
 5. 생성 결과를 확인하고 선택한 source를 workspace로 복사한다.
 6. 로컬 헬퍼를 실행한다.
 7. helper 결과의 alpha와 배경 잔여물을 먼저 검증한다.
-8. DesignHub/MiriCanvas 업로드용이면 Photopea 단계로 `assets/raw/` 입력을 `assets/processed/` 출력으로 만든다.
+8. DesignHub/MiriCanvas 업로드용이면 Photopea runner를 만들고 실행해 `assets/raw/` 입력을 `assets/processed/` 출력으로 만든다. 이 단계를 통과하지 않은 파일은 `upload-ready`라고 부르지 않는다.
 9. metadata CSV를 만들거나 갱신할 때 키워드를 20~25개로 정리하고, production/process terms를 제거한다.
 10. DesignHub/MiriCanvas 업로드용이면 `assets/processed/`를 직접 업로드 후보로 쓰기 전에 고유 이름의 업로드용 복사본과 매칭 CSV를 만든다.
 11. processed/upload PNG의 alpha, 크기, DPI, bbox, preview, CSV basename 매칭, 키워드 개수를 검증한다.
 12. 필요하면 한 번만 보수적으로 재시도한다.
-13. 최종 파일 경로, source 보존 경로, raw alpha 경로, processed 경로, 업로드용 unique 폴더/CSV, 키워드 검증 결과, 프롬프트, 헬퍼 옵션, Photopea 처리 여부, 검증 결과를 보고한다.
+13. 최종 파일 경로, source 보존 경로, raw alpha 경로, Photopea runner 경로, processed 경로, 업로드용 unique 폴더/CSV, 키워드 검증 결과, 프롬프트, 헬퍼 옵션, Photopea 처리 여부, 검증 결과를 보고한다.
 
 ## Prompt Template
 
@@ -123,9 +123,16 @@ DesignHub/MiriCanvas run에서는 다음 순서를 따른다.
 
 1. built-in `image_gen` 결과를 `assets/source-imagegen/`에 보존한다.
 2. `remove_chroma_key.py` 결과를 `assets/raw/<job-id>.png`에 저장한다.
-3. Photopea runner를 만든다.
+3. Photopea runner를 반드시 만든다. 현재 repo에 전용 runner가 있으면 그것을 우선 사용한다.
    ```bash
    node src/cli.mjs photopea-runner --run outputs/<run-id>
+   ```
+   전용 runner가 없으면 이 스킬의 번들 runner를 만든다.
+   ```bash
+   python3 "${SKILL_DIR:-.}/scripts/write_photopea_runner.py" \
+     --raw-dir "outputs/<run-id>/assets/raw" \
+     --processed-dir "outputs/<run-id>/assets/processed" \
+     --out "outputs/<run-id>/photopea/runner.html"
    ```
 4. 생성된 `photopea/runner.html` 또는 runner 안내를 Chrome 계열 브라우저에서 열고, `assets/raw/*.png`를 입력으로 선택한다.
 5. 출력은 가능하면 `assets/processed/`에 같은 basename으로 저장한다.
@@ -134,7 +141,7 @@ DesignHub/MiriCanvas run에서는 다음 순서를 따른다.
 8. Photopea export가 alpha를 잃거나 흰 matte를 만들면 성공으로 처리하지 않는다. 원본 source와 raw alpha를 기준으로 재시도하고 원인을 기록한다.
 9. Photopea가 브라우저 저장 제한 때문에 다운로드 폴더로 저장하면, 사용자가 확인한 파일만 `assets/processed/`로 옮긴 뒤 검증한다.
 
-Photopea가 없는 repo나 일반 작업에서는 이 단계를 생략할 수 있다. 하지만 사용자가 `포토피아`, `Photopea`, `DesignHub`, `MiriCanvas`, `350 DPI`, `processed`, `업로드용`을 언급하면 Photopea 단계를 포함한다.
+일반 preview나 raw alpha까지만 필요한 작업에서는 이 단계를 생략할 수 있다. 하지만 사용자가 `포토피아`, `Photopea`, `DesignHub`, `MiriCanvas`, `350 DPI`, `processed`, `업로드용`, `upload-ready`를 언급하면 Photopea runner 생성과 processed 출력 검증을 포함한다.
 
 ## Keyword Generation Rules
 
@@ -226,6 +233,7 @@ python3 "${SKILL_DIR:-.}/scripts/prepare_designhub_unique_upload.py" \
 - key-color 잔여물이 배경인지, 피사체 내부 색/반투명 효과인지 구분한다.
 - checkerboard, white, dark 배경에서 최소 3-way preview를 확인한다.
 - Photopea를 거친 경우 processed PNG가 존재하고 raw alpha와 같은 basename을 유지하는지 확인한다.
+- DesignHub/MiriCanvas upload-ready 경로에서는 `photopea/runner.html` 같은 runner 산출물이 있고, processed PNG가 runner 이후에 생겼는지 확인한다.
 - DesignHub/MiriCanvas용이면 2500px 이상, 350 DPI, tight bbox 같은 해당 프로젝트 기준도 함께 확인한다.
 - metadata/preupload CSV가 있는 workflow에서는 업로드할 PNG basename과 CSV `fileName`이 1:1로 맞는지 확인한다.
 - metadata CSV가 있는 workflow에서는 각 행의 `keywords`가 20~25개이고 중복 및 production terms가 없는지 확인한다.
@@ -285,7 +293,8 @@ node src/cli.mjs validate --run outputs/<run-id>
 - built-in `image_gen`을 사용했는지, CLI fallback을 사용했는지
 - source image path
 - raw alpha image path
-- Photopea processed image path, 또는 Photopea를 생략한 이유
+- Photopea runner path
+- Photopea processed image path, 또는 preview-only라서 Photopea를 생략했다는 명시
 - DesignHub/MiriCanvas용이면 실제 업로드할 unique PNG folder와 matching CSV path
 - DesignHub/MiriCanvas용이면 keyword count, duplicate check, removed production terms
 - key color와 helper options

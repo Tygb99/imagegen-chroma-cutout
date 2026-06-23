@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Photopea PNG Finishing Runner</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1f2937; background: #f7f8fb; }
+    header { padding: 14px 18px; border-bottom: 1px solid #d6dae2; background: #fff; }
+    main { display: grid; grid-template-columns: 360px 1fr; min-height: calc(100vh - 56px); }
+    aside { padding: 16px; border-right: 1px solid #d6dae2; background: #fff; overflow: auto; }
+    iframe { width: 100%; height: calc(100vh - 56px); border: 0; background: #2b2b2b; }
+    label { display: block; margin-top: 12px; font-weight: 650; }
+    input, button { margin-top: 6px; max-width: 100%; }
+    button { padding: 7px 10px; border: 1px solid #b7c0cf; border-radius: 6px; background: #f8fafc; cursor: pointer; }
+    button.primary { color: #fff; border-color: #0969da; background: #0969da; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .status { margin-top: 12px; padding: 10px; border-radius: 6px; background: #eef4ff; }
+    .asset { padding: 6px 0; border-bottom: 1px solid #edf0f4; overflow-wrap: anywhere; }
+    .log { margin-top: 12px; max-height: 230px; overflow: auto; white-space: pre-wrap; color: #dcfce7; background: #111827; padding: 10px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <header><strong>Photopea PNG crop / resize / DPI runner</strong></header>
+  <main>
+    <aside>
+      <p>Raw input: <code id="rawDir"></code></p>
+      <p>Processed output: <code id="processedDir"></code></p>
+      <p>Target: <code id="targetText"></code></p>
+      <label>1. Raw alpha PNG files</label>
+      <input id="rawFiles" type="file" accept="image/png,.png" multiple>
+      <label>2. Processed output folder</label>
+      <button id="chooseOutput">Choose folder</button>
+      <button id="start" class="primary">Start batch</button>
+      <div id="status" class="status">Idle. Wait for Photopea to finish loading on the right.</div>
+      <div id="log" class="log"></div>
+      <h3>Expected files</h3>
+      <div id="assets"></div>
+    </aside>
+    <iframe id="photopea" src="https://www.photopea.com#%7B%22environment%22%3A%7B%22localsave%22%3Atrue%2C%22autoshow%22%3Atrue%7D%7D"></iframe>
+  </main>
+  <script>
+    const CONFIG = __PHOTOPEA_RUNNER_CONFIG__;
+    const frame = document.getElementById("photopea");
+    const statusBox = document.getElementById("status");
+    const logBox = document.getElementById("log");
+    const assetsBox = document.getElementById("assets");
+    let outputDirHandle = null;
+    let pendingSaveName = null;
+
+    document.getElementById("rawDir").textContent = CONFIG.rawDir;
+    document.getElementById("processedDir").textContent = CONFIG.processedDir;
+    document.getElementById("targetText").textContent =
+      CONFIG.targetMinPixels + "-" + CONFIG.targetMaxPixels + "px, " + CONFIG.targetDpi + " DPI";
+    CONFIG.rawFiles.forEach((name) => {
+      const div = document.createElement("div");
+      div.className = "asset";
+      div.textContent = name;
+      assetsBox.appendChild(div);
+    });
+
+    function log(message) {
+      logBox.textContent += new Date().toLocaleTimeString() + " " + message + "\n";
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function setStatus(message) {
+      statusBox.textContent = message;
+      log(message);
+    }
+
+    function sendToPhotopea(message) {
+      frame.contentWindow.postMessage(message, "*");
+    }
+
+    function waitForDone(timeoutMs) {
+      return new Promise((resolve) => {
+        const timer = setTimeout(() => {
+          window.removeEventListener("message", onMessage);
+          resolve(false);
+        }, timeoutMs);
+        function onMessage(event) {
+          if (event.source !== frame.contentWindow) return;
+          if (event.data === "done") {
+            clearTimeout(timer);
+            window.removeEventListener("message", onMessage);
+            resolve(true);
+          }
+        }
+        window.addEventListener("message", onMessage);
+      });
+    }
+
+    async function loadFileIntoPhotopea(file) {
+      setStatus("Loading " + file.name);
+      sendToPhotopea(await file.arrayBuffer());
+      await waitForDone(15000);
+    }
+
+    function processedName(rawName) {
+      return rawName.replace(/\.[^.]+$/, "") + ".png";
+    }
+
+    function buildProcessingScript(assetName) {
+      return [
+        "var targetMin = " + JSON.stringify(CONFIG.targetMinPixels) + ";",
+        "var targetMax = " + JSON.stringify(CONFIG.targetMaxPixels) + ";",
+        "try {",
+        "  var doc = app.activeDocument;",
+        "  doc.trim(TrimType.TRANSPARENT, true, true, true, true);",
+        "  var width = doc.width.value;",
+        "  var height = doc.height.value;",
+        "  var scale = 1;",
+        "  var minSide = Math.min(width, height);",
+        "  if (minSide < targetMin) scale = targetMin / minSide;",
+        "  var scaledWidth = Math.round(width * scale);",
+        "  var scaledHeight = Math.round(height * scale);",
+        "  var maxSide = Math.max(scaledWidth, scaledHeight);",
+        "  if (maxSide > targetMax) {",
+        "    var downScale = targetMax / maxSide;",
+        "    scaledWidth = Math.floor(scaledWidth * downScale);",
+        "    scaledHeight = Math.floor(scaledHeight * downScale);",
+        "  }",
+        "  if (Math.min(scaledWidth, scaledHeight) < targetMin || Math.max(scaledWidth, scaledHeight) > targetMax) {",
+        "    throw new Error('size_out_of_range:' + scaledWidth + 'x' + scaledHeight);",
+        "  }",
+        "  if (scaledWidth !== Math.round(width) || scaledHeight !== Math.round(height)) {",
+        "    doc.resizeImage(UnitValue(scaledWidth, 'px'), UnitValue(scaledHeight, 'px'), null, ResampleMethod.BICUBIC);",
+        "  }",
+        "  app.activeDocument.saveToOE('png');",
+        "} catch (e) {",
+        "  app.echoToOE('photopea_failed:' + " + JSON.stringify(assetName) + " + ':' + e);",
+        "}"
+      ].join("\n");
+    }
+
+    function writeUint32(bytes, offset, value) {
+      bytes[offset] = (value >>> 24) & 255;
+      bytes[offset + 1] = (value >>> 16) & 255;
+      bytes[offset + 2] = (value >>> 8) & 255;
+      bytes[offset + 3] = value & 255;
+    }
+
+    function readUint32(bytes, offset) {
+      return ((bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3]) >>> 0;
+    }
+
+    function crc32(bytes) {
+      let crc = -1;
+      for (let i = 0; i < bytes.length; i += 1) {
+        crc ^= bytes[i];
+        for (let bit = 0; bit < 8; bit += 1) {
+          crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+        }
+      }
+      return (crc ^ -1) >>> 0;
+    }
+
+    function makeChunk(type, data) {
+      const typeBytes = new TextEncoder().encode(type);
+      const chunk = new Uint8Array(12 + data.length);
+      writeUint32(chunk, 0, data.length);
+      chunk.set(typeBytes, 4);
+      chunk.set(data, 8);
+      const crcInput = new Uint8Array(typeBytes.length + data.length);
+      crcInput.set(typeBytes, 0);
+      crcInput.set(data, typeBytes.length);
+      writeUint32(chunk, 8 + data.length, crc32(crcInput));
+      return chunk;
+    }
+
+    function setPngDpi(buffer, dpi) {
+      const source = new Uint8Array(buffer);
+      const signature = [137, 80, 78, 71, 13, 10, 26, 10];
+      if (!signature.every((value, index) => source[index] === value)) return buffer;
+      const pixelsPerMeter = Math.round(dpi / 0.0254);
+      const phys = new Uint8Array(9);
+      writeUint32(phys, 0, pixelsPerMeter);
+      writeUint32(phys, 4, pixelsPerMeter);
+      phys[8] = 1;
+      const physChunk = makeChunk("pHYs", phys);
+      const chunks = [source.slice(0, 8)];
+      let inserted = false;
+      let offset = 8;
+      while (offset + 12 <= source.length) {
+        const length = readUint32(source, offset);
+        const type = String.fromCharCode(source[offset + 4], source[offset + 5], source[offset + 6], source[offset + 7]);
+        const end = offset + 12 + length;
+        if (type === "pHYs") {
+          chunks.push(physChunk);
+          inserted = true;
+        } else {
+          chunks.push(source.slice(offset, end));
+          if (!inserted && type === "IHDR") {
+            chunks.push(physChunk);
+            inserted = true;
+          }
+        }
+        offset = end;
+      }
+      const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+      const output = new Uint8Array(totalLength);
+      let cursor = 0;
+      for (const chunk of chunks) {
+        output.set(chunk, cursor);
+        cursor += chunk.length;
+      }
+      return output.buffer;
+    }
+
+    async function saveOutput(name, payload) {
+      const arrayBuffer = payload instanceof Blob ? await payload.arrayBuffer() : payload;
+      const blob = new Blob([setPngDpi(arrayBuffer, CONFIG.targetDpi)], { type: "image/png" });
+      if (outputDirHandle) {
+        const handle = await outputDirHandle.getFileHandle(name, { create: true });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        log("Saved " + name + " to chosen folder");
+      } else {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = name;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        log("Downloaded " + name);
+      }
+    }
+
+    async function runBatch() {
+      const rawFiles = Array.from(document.getElementById("rawFiles").files);
+      if (rawFiles.length === 0) {
+        setStatus("Select raw alpha PNG files first.");
+        return;
+      }
+      for (const file of rawFiles) {
+        pendingSaveName = processedName(file.name);
+        await loadFileIntoPhotopea(file);
+        setStatus("Processing " + file.name);
+        sendToPhotopea(buildProcessingScript(file.name));
+        await waitForDone(15000);
+      }
+      setStatus("Batch sent. If no output folder was chosen, check browser downloads.");
+    }
+
+    window.addEventListener("message", (event) => {
+      if (event.source !== frame.contentWindow) return;
+      if (typeof event.data === "string") {
+        log(event.data);
+        return;
+      }
+      if (event.data instanceof ArrayBuffer || event.data instanceof Blob) {
+        const name = pendingSaveName || "processed-" + Date.now() + ".png";
+        pendingSaveName = null;
+        saveOutput(name, event.data).catch((error) => log("save_failed:" + error));
+      }
+    });
+
+    document.getElementById("chooseOutput").addEventListener("click", async () => {
+      if (!window.showDirectoryPicker) {
+        setStatus("This browser cannot write directly to a folder. Outputs will download instead.");
+        return;
+      }
+      outputDirHandle = await window.showDirectoryPicker();
+      const permission = await outputDirHandle.requestPermission({ mode: "readwrite" });
+      if (permission !== "granted") {
+        outputDirHandle = null;
+        setStatus("Folder permission was not granted. Outputs will download instead.");
+        return;
+      }
+      setStatus("Output folder selected.");
+    });
+
+    document.getElementById("start").addEventListener("click", runBatch);
+  </script>
+</body>
+</html>

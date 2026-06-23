@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "미리캔버스 DesignHub에 올릴 투명 PNG 요소로 글래스모피즘 물방울 6개 만들어줘. imagegen으로 만들고 헬퍼로 배경제거한 다음 Photopea로 350DPI 처리해서 run 폴더에 source/raw/processed를 나눠 저장해줘.",
-      "expected_output": "Uses built-in image_gen with a flat chroma-key background, preserves source images, runs the bundled scripts/remove_chroma_key.py into assets/raw, routes upload-ready assets through Photopea into assets/processed, creates buyer-facing DesignHub keywords with 20-25 unique terms, creates DesignHub-safe unique upload basenames plus a matching CSV, validates alpha/size/DPI, keyword count, and CSV-to-PNG alignment, and reports paths without uploading externally.",
+      "expected_output": "Uses built-in image_gen with a flat chroma-key background, preserves source images, runs the bundled scripts/remove_chroma_key.py into assets/raw, creates or uses a Photopea runner before calling the assets upload-ready, routes upload-ready assets through Photopea into assets/processed, creates buyer-facing DesignHub keywords with 20-25 unique terms, creates DesignHub-safe unique upload basenames plus a matching CSV, validates alpha/size/DPI, keyword count, and CSV-to-PNG alignment, and reports paths without uploading externally.",
       "files": []
     },
     {
@@ -22,7 +22,7 @@
     {
       "id": 4,
       "prompt": "이미 raw 투명 PNG는 있어. 이걸 포토피아로 크롭하고 350dpi 맞춰서 processed 폴더에 넣고 validate까지 해줘.",
-      "expected_output": "Skips new image generation when raw alpha PNGs already exist, creates or uses the Photopea runner, saves processed outputs separately, validates the run, and reports any missing metadata, keyword quality, CSV alignment, or review artifacts.",
+      "expected_output": "Skips new image generation when raw alpha PNGs already exist, creates the bundled Photopea runner or uses a stronger project-specific runner, saves processed outputs separately, validates the run, and reports any missing metadata, keyword quality, CSV alignment, or review artifacts.",
       "files": []
     },
     {

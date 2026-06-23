@@ -9,14 +9,14 @@ The workflow is intentionally public-repo friendly:
 1. Generate a raster image on a flat chroma-key background with the built-in `image_gen` tool.
 2. Preserve the source image.
 3. Remove the chroma-key background with the bundled `scripts/remove_chroma_key.py` helper.
-4. Optionally route the alpha image through Photopea or a project-specific Photopea runner for crop, resize, and DPI finishing.
+4. For upload-ready PNG elements, route the alpha image through Photopea with the bundled runner or a project-specific Photopea runner for crop, resize, and DPI finishing.
 5. Generate buyer-facing DesignHub keywords and metadata.
 6. For DesignHub uploads, copy processed PNGs to upload-safe unique basenames and write a matching CSV.
 7. Validate alpha, corners, background fringes, image size, DPI, keyword count, CSV basename alignment, and preview surfaces.
 
 ## Dependencies
 
-Required:
+Required for chroma-key cutouts:
 
 - Codex or another agent runtime that can use the `image_gen` tool.
 - Python 3.10 or newer.
@@ -29,16 +29,22 @@ Install the Python dependency:
 python3 -m pip install -r requirements.txt
 ```
 
+NumPy is required because the chroma-key helper uses vectorized pixel operations. On a 12-image 2026-06-22 glassmorphism batch, the NumPy CLI path ran about 8.2x faster than the prior Pillow loop path while leaving no visible key-color residue.
+
+Required for upload-ready DesignHub/MiriCanvas PNG elements:
+
+- Photopea in a Chromium-family browser.
+- The bundled `scripts/write_photopea_runner.py` runner generator, unless the current project has a stronger Photopea runner.
+
 Optional:
 
-- Photopea or a project-specific Photopea runner for upload-ready PNG element finishing.
+- Project-specific Photopea runners, for example `node src/cli.mjs photopea-runner --run <run-id>`.
 - Project-specific validation commands, for example `node src/cli.mjs validate --run <run-id>` in the MiriCanvas/DesignHub pipeline.
-
-NumPy is required because the chroma-key helper uses vectorized pixel operations. On a 12-image 2026-06-22 glassmorphism batch, the NumPy CLI path ran about 8.2x faster than the prior Pillow loop path while leaving no visible key-color residue.
 
 ## Repository Layout
 
 - `src/imagegen_chroma_cutout/`: reusable Python implementation.
+- `assets/photopea_runner.html`: browser template for the bundled Photopea runner.
 - `scripts/`: thin CLI wrappers for the commands shown below.
 
 ## Helper Usage
@@ -53,6 +59,19 @@ python3 scripts/remove_chroma_key.py \
   --opaque-threshold 220 \
   --despill
 ```
+
+## Photopea Runner
+
+DesignHub/MiriCanvas upload-ready assets should not stop at raw alpha PNGs. Generate a Photopea runner, open it in Chrome, select the raw PNG files, choose the processed output folder, and run the batch.
+
+```bash
+python3 scripts/write_photopea_runner.py \
+  --raw-dir outputs/<run-id>/assets/raw \
+  --processed-dir outputs/<run-id>/assets/processed \
+  --out outputs/<run-id>/photopea/runner.html
+```
+
+The runner trims transparent bounds, resizes to the target range, exports PNG through Photopea, and patches the PNG DPI metadata in the browser. If a local project has a stronger runner such as `node src/cli.mjs photopea-runner --run <run-id>`, use that project runner instead.
 
 ## DesignHub Filename De-duplication
 

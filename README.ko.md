@@ -9,14 +9,14 @@
 1. built-in `image_gen` 도구로 단색 크로마키 배경 이미지를 생성합니다.
 2. 생성 원본을 보존합니다.
 3. 번들된 `scripts/remove_chroma_key.py` 헬퍼로 크로마키 배경을 제거합니다.
-4. 필요하면 Photopea 또는 프로젝트별 Photopea runner로 crop, resize, DPI 마무리를 합니다.
+4. 업로드용 PNG 요소라면 번들 runner 또는 프로젝트별 Photopea runner로 crop, resize, DPI 마무리를 합니다.
 5. 구매자 검색어 중심의 DesignHub 키워드와 메타데이터를 만듭니다.
 6. DesignHub 업로드용이면 processed PNG를 업로드 안전 고유 basename으로 복사하고 매칭 CSV를 만듭니다.
 7. alpha, 모서리 투명도, 배경 잔여물, 이미지 크기, DPI, 키워드 개수, CSV basename 매칭, preview 화면을 검증합니다.
 
 ## 의존성
 
-필수:
+크로마키 컷아웃 필수:
 
 - `image_gen` 도구를 사용할 수 있는 Codex 또는 agent 런타임.
 - Python 3.10 이상.
@@ -29,16 +29,22 @@ Python 의존성 설치:
 python3 -m pip install -r requirements.txt
 ```
 
+NumPy는 크로마키 헬퍼의 벡터화 픽셀 처리에 필요합니다. 2026-06-22 글래스모피즘 12개 배치 기준으로 NumPy CLI 경로가 기존 Pillow 루프 경로보다 약 8.2배 빨랐고, 보이는 key-color 잔여 검증도 통과했습니다.
+
+DesignHub/MiriCanvas 업로드용 PNG 요소 필수:
+
+- Chromium 계열 브라우저의 Photopea.
+- 현재 프로젝트에 더 강한 Photopea runner가 없다면 번들된 `scripts/write_photopea_runner.py` runner 생성기.
+
 선택:
 
-- 업로드용 PNG 요소 마무리를 위한 Photopea 또는 프로젝트별 Photopea runner.
+- 프로젝트별 Photopea runner. 예: `node src/cli.mjs photopea-runner --run <run-id>`.
 - 프로젝트별 검증 명령. 예: MiriCanvas/DesignHub 파이프라인의 `node src/cli.mjs validate --run <run-id>`.
-
-NumPy는 크로마키 헬퍼의 벡터화 픽셀 처리에 필요합니다. 2026-06-22 글래스모피즘 12개 배치 기준으로 NumPy CLI 경로가 기존 Pillow 루프 경로보다 약 8.2배 빨랐고, 보이는 key-color 잔여 검증도 통과했습니다.
 
 ## 저장소 구조
 
 - `src/imagegen_chroma_cutout/`: 재사용 가능한 Python 구현.
+- `assets/photopea_runner.html`: 번들 Photopea runner용 브라우저 템플릿.
 - `scripts/`: 아래 명령에서 쓰는 얇은 CLI wrapper.
 
 ## 헬퍼 사용법
@@ -53,6 +59,19 @@ python3 scripts/remove_chroma_key.py \
   --opaque-threshold 220 \
   --despill
 ```
+
+## Photopea Runner
+
+DesignHub/MiriCanvas 업로드용 산출물은 raw alpha PNG에서 멈추면 안 됩니다. Photopea runner를 생성한 뒤 Chrome에서 열고, raw PNG 파일을 선택하고, processed 출력 폴더를 고른 다음 batch를 실행합니다.
+
+```bash
+python3 scripts/write_photopea_runner.py \
+  --raw-dir outputs/<run-id>/assets/raw \
+  --processed-dir outputs/<run-id>/assets/processed \
+  --out outputs/<run-id>/photopea/runner.html
+```
+
+runner는 투명 영역 기준 trim, 목표 크기 범위로 resize, Photopea PNG export, 브라우저 내 PNG DPI metadata 패치를 수행합니다. 로컬 프로젝트에 `node src/cli.mjs photopea-runner --run <run-id>`처럼 더 강한 runner가 있으면 그 프로젝트 runner를 우선 사용합니다.
 
 ## DesignHub 파일명 중복 방지
 
