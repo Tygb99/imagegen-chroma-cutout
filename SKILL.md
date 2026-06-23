@@ -26,7 +26,13 @@ description: Use this skill whenever the user is preparing MiriCanvas or DesignH
 Install helper dependencies only when needed:
 
 ```bash
-python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
+```
+
+On Windows, run commands from the skill directory in PowerShell and use `py -3` or `python` instead of relying on `python3` or POSIX shell expansion:
+
+```powershell
+py -3 -m pip install -r requirements.txt
 ```
 
 ## Route Selection
@@ -40,7 +46,7 @@ Use for DesignHub background elements, JPG backgrounds, broad textures, water su
 - Use built-in `image_gen`.
 - Do not request transparent background, chroma key, checkerboard, cutout, or Photopea alpha processing.
 - Prompt for a full-bleed rectangular or square background with no dominant subject.
-- Preserve source PNGs from `$CODEX_HOME/generated_images/...` in the workspace.
+- Preserve source PNGs from the Codex generated image directory in the workspace. Use `$CODEX_HOME/generated_images/...` in POSIX shells and `$env:CODEX_HOME\generated_images\...` in Windows PowerShell when the environment variable is available.
 - Convert final files to JPG.
 - Use DesignHub CSV `contentType` value `Background`.
 - Remove `.jpg` from CSV `fileName`.
@@ -78,7 +84,7 @@ Use this route when the user says imagegen is better, asks for background JPGs, 
 1. Read the project instructions first when working inside a `miricanvas-design` checkout, using paths relative to the current repo root.
 2. If the user gives a reference image, inspect it and label it as a reference, not an edit target, unless the user asks to modify that exact image.
 3. Create one built-in `image_gen` call per requested variant. Distinct backgrounds should get distinct prompts.
-4. After generation, find the new files under `$CODEX_HOME/generated_images/...` and copy them into the workspace. Leave the original generated files in place.
+4. After generation, find the new files under the Codex generated image directory and copy them into the workspace. Leave the original generated files in place.
 5. Convert each selected source to JPG:
    - RGB, no alpha
    - minimum 2500 px on each side for DesignHub background
@@ -148,10 +154,10 @@ Constraints:
 
 ## Helper Command
 
-Use the bundled helper first. Current working environments may not define `SKILL_DIR`, so use the absolute skill path or set `SKILL_DIR` explicitly.
+Use the bundled helper first. For Windows compatibility, prefer running from the skill directory with a relative script path instead of relying on Bash-only environment-variable fallback syntax.
 
 ```bash
-python3 "${SKILL_DIR:-.}/scripts/remove_chroma_key.py" \
+python scripts/remove_chroma_key.py \
   --input "<source.png>" \
   --out "<final-alpha.png>" \
   --auto-key border \
@@ -161,10 +167,23 @@ python3 "${SKILL_DIR:-.}/scripts/remove_chroma_key.py" \
   --despill
 ```
 
+PowerShell equivalent:
+
+```powershell
+py -3 .\scripts\remove_chroma_key.py `
+  --input ".\source.png" `
+  --out ".\final-alpha.png" `
+  --auto-key border `
+  --soft-matte `
+  --transparent-threshold 12 `
+  --opaque-threshold 220 `
+  --despill
+```
+
 If a thin key-color fringe remains, retry once:
 
 ```bash
-python3 "${SKILL_DIR:-.}/scripts/remove_chroma_key.py" \
+python scripts/remove_chroma_key.py \
   --input "<source.png>" \
   --out "<final-alpha-v2.png>" \
   --auto-key border \
@@ -191,10 +210,17 @@ For DesignHub/MiriCanvas PNG element runs:
    ```
 4. Otherwise create the bundled runner:
    ```bash
-   python3 "${SKILL_DIR:-.}/scripts/write_photopea_runner.py" \
+   python scripts/write_photopea_runner.py \
      --raw-dir "outputs/<run-id>/assets/raw" \
      --processed-dir "outputs/<run-id>/assets/processed" \
      --out "outputs/<run-id>/photopea/runner.html"
+   ```
+   On Windows PowerShell:
+   ```powershell
+   py -3 .\scripts\write_photopea_runner.py `
+     --raw-dir "outputs\<run-id>\assets\raw" `
+     --processed-dir "outputs\<run-id>\assets\processed" `
+     --out "outputs\<run-id>\photopea\runner.html"
    ```
 5. For the `miricanvas-design` repo, keep PNG elements at 350 DPI, at least 2500 px on each side, tight alpha bbox, and alpha preserved.
 
@@ -237,11 +263,22 @@ Recommended basename:
 Bundled helper:
 
 ```bash
-python3 "${SKILL_DIR:-.}/scripts/prepare_designhub_unique_upload.py" \
+python scripts/prepare_designhub_unique_upload.py \
   --csv "outputs/<run-id>/metadata/preupload.csv" \
   --images-dir "outputs/<run-id>/assets/processed" \
   --out-dir "outputs/<run-id>/assets/processed-designhub-unique-<YYYYMMDD-HHmm>" \
   --out-csv "outputs/<run-id>/metadata/designhub-preupload-unique-<YYYYMMDD-HHmm>.csv" \
+  --prefix "<short-topic-slug>-<YYYYMMDD>-<HHmm>"
+```
+
+PowerShell equivalent:
+
+```powershell
+py -3 .\scripts\prepare_designhub_unique_upload.py `
+  --csv "outputs\<run-id>\metadata\preupload.csv" `
+  --images-dir "outputs\<run-id>\assets\processed" `
+  --out-dir "outputs\<run-id>\assets\processed-designhub-unique-<YYYYMMDD-HHmm>" `
+  --out-csv "outputs\<run-id>\metadata\designhub-preupload-unique-<YYYYMMDD-HHmm>.csv" `
   --prefix "<short-topic-slug>-<YYYYMMDD>-<HHmm>"
 ```
 
@@ -253,7 +290,7 @@ Run validation suited to the route.
 
 ### Background JPG checks
 
-- Source PNGs exist in the workspace, not only under `$CODEX_HOME`.
+- Source PNGs exist in the workspace, not only under the Codex generated image directory.
 - Final files are JPEG/JPG.
 - No alpha channel.
 - Width and height meet DesignHub background limits.

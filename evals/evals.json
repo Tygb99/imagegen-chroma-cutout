@@ -36,6 +36,12 @@
       "prompt": "투명한 유리컵 제품컷을 native transparent로 바로 뽑아줘. 가능하면 배경제거 없이.",
       "expected_output": "Recognizes glass/native transparency as complex, explains the built-in chroma-key default versus CLI native transparency fallback, and asks for confirmation before switching to CLI/API.",
       "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "이 스킬을 Windows PC PowerShell에서 써야 해. 투명 PNG helper랑 Photopea runner 명령을 윈도우 경로로 안내해줘.",
+      "expected_output": "Provides Windows PowerShell-safe commands using py -3 or python, .\\scripts\\... paths, backtick line continuations, quoted Windows-style output paths, and avoids Bash-only environment-variable fallback syntax while keeping the PNG-only DesignHub workflow.",
+      "files": []
     }
   ]
 }

@@ -26,7 +26,13 @@
 필요할 때만 Python 의존성을 설치합니다.
 
 ```bash
-python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
+```
+
+Windows PowerShell에서는 스킬 디렉터리에서 다음처럼 실행합니다.
+
+```powershell
+py -3 -m pip install -r requirements.txt
 ```
 
 업로드용 PNG 요소 필수:
@@ -71,7 +77,7 @@ outputs/<run-id>/logs/
 PNG 요소는 크로마키 헬퍼와 Photopea 경로를 사용합니다.
 
 ```bash
-python3 scripts/remove_chroma_key.py \
+python scripts/remove_chroma_key.py \
   --input source.png \
   --out final-alpha.png \
   --auto-key border \
@@ -81,13 +87,35 @@ python3 scripts/remove_chroma_key.py \
   --despill
 ```
 
+Windows PowerShell:
+
+```powershell
+py -3 .\scripts\remove_chroma_key.py `
+  --input ".\source.png" `
+  --out ".\final-alpha.png" `
+  --auto-key border `
+  --soft-matte `
+  --transparent-threshold 12 `
+  --opaque-threshold 220 `
+  --despill
+```
+
 DesignHub/MiriCanvas 업로드용 PNG라면 Photopea runner를 만들거나 프로젝트 runner를 사용합니다.
 
 ```bash
-python3 scripts/write_photopea_runner.py \
+python scripts/write_photopea_runner.py \
   --raw-dir outputs/<run-id>/assets/raw \
   --processed-dir outputs/<run-id>/assets/processed \
   --out outputs/<run-id>/photopea/runner.html
+```
+
+Windows PowerShell:
+
+```powershell
+py -3 .\scripts\write_photopea_runner.py `
+  --raw-dir "outputs\<run-id>\assets\raw" `
+  --processed-dir "outputs\<run-id>\assets\processed" `
+  --out "outputs\<run-id>\photopea\runner.html"
 ```
 
 ## DesignHub 키워드 규칙

@@ -21,7 +21,7 @@ def load_pillow():
     try:
         from PIL import Image, ImageFilter
     except ImportError:
-        die("Pillow is required. Install dependencies with `python3 -m pip install -r requirements.txt`.")
+        die("Pillow is required. Install dependencies with `python -m pip install -r requirements.txt`.")
     return Image, ImageFilter
 
 

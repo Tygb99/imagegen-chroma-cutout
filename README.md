@@ -26,7 +26,13 @@ Required for local processing:
 Install Python dependencies only when needed:
 
 ```bash
-python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
+```
+
+On Windows PowerShell, run from the skill directory and use:
+
+```powershell
+py -3 -m pip install -r requirements.txt
 ```
 
 Required for upload-ready PNG elements:
@@ -71,7 +77,7 @@ CSV rules for background JPGs:
 Use the chroma-key helper and Photopea route for PNG elements.
 
 ```bash
-python3 scripts/remove_chroma_key.py \
+python scripts/remove_chroma_key.py \
   --input source.png \
   --out final-alpha.png \
   --auto-key border \
@@ -81,13 +87,35 @@ python3 scripts/remove_chroma_key.py \
   --despill
 ```
 
+Windows PowerShell:
+
+```powershell
+py -3 .\scripts\remove_chroma_key.py `
+  --input ".\source.png" `
+  --out ".\final-alpha.png" `
+  --auto-key border `
+  --soft-matte `
+  --transparent-threshold 12 `
+  --opaque-threshold 220 `
+  --despill
+```
+
 For DesignHub/MiriCanvas upload-ready PNGs, generate or use a Photopea runner:
 
 ```bash
-python3 scripts/write_photopea_runner.py \
+python scripts/write_photopea_runner.py \
   --raw-dir outputs/<run-id>/assets/raw \
   --processed-dir outputs/<run-id>/assets/processed \
   --out outputs/<run-id>/photopea/runner.html
+```
+
+Windows PowerShell:
+
+```powershell
+py -3 .\scripts\write_photopea_runner.py `
+  --raw-dir "outputs\<run-id>\assets\raw" `
+  --processed-dir "outputs\<run-id>\assets\processed" `
+  --out "outputs\<run-id>\photopea\runner.html"
 ```
 
 ## DesignHub Keyword Rules
