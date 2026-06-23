@@ -117,6 +117,14 @@ Imagen Design Hub는 시각 asset을 다루는 차분한 제작 벤치처럼 느
 - **접근성**: 설명 가능한 link label과 눈에 보이는 count text.
 - **모션**: hover와 active에서 약한 translate.
 
+### Workflow Visual
+- **구조**: 프로젝트에 보존한 imagegen bitmap을 16:9 framed surface 안에 배치한다.
+- **변형**: hero figure, feature media crop.
+- **간격**: 주변 copy와 --space-6 이상 간격을 두고, compact technical label 외의 텍스트 overlay는 쓰지 않는다.
+- **상태**: static image, responsive crop.
+- **접근성**: hero image에는 설명 가능한 alt text를 두고, 장식용 crop은 hidden 처리한다.
+- **모션**: 자동 animation은 쓰지 않는다.
+
 ## 6. 모션과 상호작용
 
 ### 타이밍

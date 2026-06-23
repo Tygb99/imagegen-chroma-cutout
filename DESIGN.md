@@ -117,6 +117,14 @@ All spacing derives from a base of 4px.
 - **Accessibility**: descriptive link label and visible count text.
 - **Motion**: subtle translate on hover and active.
 
+### Workflow Visual
+- **Structure**: project-bound imagegen bitmap in a 16:9 framed surface.
+- **Variants**: hero figure, feature media crop.
+- **Spacing**: --space-6 around neighboring copy, no inner text overlay except compact technical label.
+- **States**: static image, responsive crop.
+- **Accessibility**: descriptive alt text on the hero image and decorative crops marked hidden.
+- **Motion**: no automatic animation.
+
 ## 6. Motion & Interaction
 
 ### Timing
