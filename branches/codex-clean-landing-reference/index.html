@@ -1,0 +1,1314 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Imagen Design Hub</title>
+  <meta name="description" content="Imagegen 기반 MiriCanvas DesignHub JPG 배경과 PNG 요소 제작을 위한 Codex skill landing page.">
+  <meta property="og:title" content="Imagen Design Hub">
+  <meta property="og:description" content="DesignHub용 JPG 배경, 투명 PNG 요소, CSV 메타데이터 검증을 한 번의 로컬 워크플로로 정리합니다.">
+  <meta property="og:image" content="assets/imagegen-workflow-hero.png">
+  <link rel="preload" as="image" href="assets/imagegen-workflow-hero.png">
+  <style>
+    :root {
+      --surface-primary: #050807;
+      --surface-secondary: #09100F;
+      --surface-elevated: #0E1715;
+      --surface-ink: #030605;
+      --text-primary: #F6FBFA;
+      --text-secondary: #A9BBB7;
+      --text-tertiary: #6F8380;
+      --border-default: #203431;
+      --border-subtle: #14231F;
+      --accent-primary: #087E8B;
+      --accent-secondary: #E56B4F;
+      --accent-quiet: #B7E3D8;
+      --accent-gold: #D3913B;
+      --status-success: #1D8A5F;
+      --status-warning: #C98422;
+      --status-error: #C94D4D;
+      --status-info: #087E8B;
+      --shadow-default: 0 18px 50px rgba(23, 35, 33, 0.16);
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+      color-scheme: dark;
+      font-family: Aptos, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(8, 126, 139, 0.16), transparent 34%),
+        radial-gradient(circle at 82% 20%, rgba(211, 145, 59, 0.12), transparent 32%),
+        var(--surface-primary);
+      color: var(--text-primary);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--surface-primary);
+      color: var(--text-primary);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.08;
+      background-image:
+        linear-gradient(rgba(246, 251, 250, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(246, 251, 250, 0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(to bottom, transparent, black 18%, black 72%, transparent);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .page-shell {
+      overflow: hidden;
+    }
+
+    .hero {
+      min-height: 78dvh;
+      position: relative;
+      display: grid;
+      align-items: center;
+      padding: var(--space-6);
+      background: var(--surface-ink);
+      color: var(--text-primary);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(3, 6, 5, 0.94), rgba(3, 6, 5, 0.62) 48%, rgba(3, 6, 5, 0.42)),
+        linear-gradient(180deg, rgba(3, 6, 5, 0.22), rgba(3, 6, 5, 0.86));
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 20dvh;
+      background: linear-gradient(to bottom, transparent, var(--surface-primary));
+      pointer-events: none;
+    }
+
+    .nav {
+      position: absolute;
+      top: var(--space-6);
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1180px, calc(100% - 32px));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      z-index: 2;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-weight: 760;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(183, 227, 216, 0.96), rgba(8, 126, 139, 0.88)),
+        var(--accent-primary);
+      border: 1px solid rgba(246, 251, 250, 0.48);
+      box-shadow: 0 1px 2px rgba(23, 35, 33, 0.16);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: var(--space-2);
+      color: rgba(246, 251, 250, 0.82);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .nav-links a {
+      padding: var(--space-2) var(--space-3);
+      border-radius: 8px;
+      transition: background 180ms ease-out, transform 180ms ease-out;
+    }
+
+    .nav-links a:hover {
+      background: rgba(246, 251, 250, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding-top: var(--space-20);
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(260px, 0.55fr);
+      gap: var(--space-12);
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid rgba(246, 251, 250, 0.28);
+      border-radius: 8px;
+      background: rgba(23, 35, 33, 0.32);
+      color: rgba(246, 251, 250, 0.86);
+      font-size: 11px;
+      font-weight: 760;
+      line-height: 1.3;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: var(--space-6) 0 var(--space-5);
+      font-size: clamp(44px, 8vw, 92px);
+      line-height: 1.02;
+      letter-spacing: 0;
+      font-weight: 760;
+      word-break: keep-all;
+    }
+
+    .hero-copy {
+      max-width: 660px;
+      margin: 0;
+      color: rgba(246, 251, 250, 0.76);
+      font-size: 19px;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-8);
+      align-items: center;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      min-height: 48px;
+      padding: var(--space-3) var(--space-4);
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-weight: 760;
+      transition: transform 160ms ease-out, border-color 160ms ease-out, background 160ms ease-out;
+    }
+
+    .button::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      transform: rotate(45deg);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:active {
+      transform: translateY(1px);
+    }
+
+    .button:focus-visible,
+    .nav-links a:focus-visible,
+    .copy-button:focus-visible {
+      outline: 3px solid rgba(183, 227, 216, 0.72);
+      outline-offset: 3px;
+    }
+
+    .button-primary {
+      color: var(--surface-ink);
+      background: var(--accent-quiet);
+      border-color: rgba(246, 251, 250, 0.32);
+    }
+
+    .button-secondary {
+      color: var(--text-primary);
+      background: rgba(246, 251, 250, 0.08);
+      border-color: rgba(246, 251, 250, 0.24);
+    }
+
+    .star-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      min-height: 48px;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid rgba(246, 251, 250, 0.24);
+      border-radius: 8px;
+      background: rgba(246, 251, 250, 0.08);
+      color: var(--text-primary);
+      font-weight: 760;
+      transition: transform 160ms ease-out, border-color 160ms ease-out, background 160ms ease-out;
+    }
+
+    .star-link:hover {
+      transform: translateY(-1px);
+      background: rgba(246, 251, 250, 0.14);
+      border-color: rgba(246, 251, 250, 0.34);
+    }
+
+    .star-link:active {
+      transform: translateY(1px);
+    }
+
+    .star-link:focus-visible {
+      outline: 3px solid rgba(183, 227, 216, 0.72);
+      outline-offset: 3px;
+    }
+
+    .star-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--accent-quiet);
+      flex: none;
+    }
+
+    .star-count {
+      display: inline-flex;
+      min-width: 28px;
+      justify-content: center;
+      padding: var(--space-1) var(--space-2);
+      border-radius: 8px;
+      background: rgba(246, 251, 250, 0.12);
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 650;
+    }
+
+    .star-link-footer {
+      min-height: 44px;
+      color: var(--text-primary);
+      background: rgba(246, 251, 250, 0.06);
+    }
+
+    .proof-panel {
+      width: min(100%, 420px);
+      justify-self: end;
+      padding: var(--space-5);
+      border: 1px solid rgba(246, 251, 250, 0.24);
+      border-radius: 8px;
+      background: rgba(23, 35, 33, 0.56);
+      box-shadow: var(--shadow-default);
+      backdrop-filter: blur(16px);
+    }
+
+    .proof-panel h2 {
+      margin: 0 0 var(--space-4);
+      font-size: 21px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .proof-list {
+      display: grid;
+      gap: var(--space-2);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .proof-list li {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-top: 1px solid rgba(246, 251, 250, 0.14);
+      color: rgba(246, 251, 250, 0.78);
+      font-size: 14px;
+    }
+
+    .proof-list strong {
+      color: var(--text-primary);
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .section {
+      padding: var(--space-20) var(--space-6);
+      background: var(--surface-primary);
+    }
+
+    .section-alt {
+      background: var(--surface-secondary);
+    }
+
+    .section-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .section-kicker {
+      margin: 0 0 var(--space-3);
+      color: var(--accent-primary);
+      font-size: 11px;
+      line-height: 1.3;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 760;
+    }
+
+    .section-title {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.05;
+      font-weight: 740;
+      letter-spacing: 0;
+      word-break: keep-all;
+    }
+
+    .section-lead {
+      max-width: 760px;
+      margin: var(--space-5) 0 0;
+      color: var(--text-secondary);
+      font-size: 19px;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+
+    .route-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: var(--space-8);
+      align-items: start;
+      margin-top: var(--space-12);
+    }
+
+    .route-stack {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .pipeline-row {
+      display: grid;
+      grid-template-columns: 132px 1fr auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: var(--space-4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--surface-elevated);
+      transition: transform 180ms ease-out, border-color 180ms ease-out;
+    }
+
+    .pipeline-row:hover {
+      transform: translateY(-1px);
+      border-color: var(--border-default);
+    }
+
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      min-width: 82px;
+      justify-content: center;
+      padding: var(--space-2) var(--space-3);
+      border-radius: 8px;
+      background: var(--surface-ink);
+      color: var(--text-primary);
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+
+    .badge-teal {
+      background: var(--accent-primary);
+    }
+
+    .badge-green {
+      background: var(--status-success);
+    }
+
+    .badge-coral {
+      background: var(--accent-secondary);
+    }
+
+    .pipeline-row h3 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .pipeline-row p {
+      margin: var(--space-1) 0 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .format-note {
+      color: var(--text-secondary);
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .command-panel {
+      padding: var(--space-5);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      background: var(--surface-ink);
+      color: var(--text-primary);
+    }
+
+    .command-panel h3 {
+      margin: 0 0 var(--space-4);
+      font-size: 21px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .command-tabs {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .command-block {
+      border: 1px solid rgba(246, 251, 250, 0.16);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(16, 24, 23, 0.8);
+    }
+
+    .command-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid rgba(246, 251, 250, 0.12);
+      color: rgba(246, 251, 250, 0.76);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    pre {
+      margin: 0;
+      padding: var(--space-4);
+      overflow-x: auto;
+      color: #DFF4EF;
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre;
+    }
+
+    .copy-button {
+      border: 1px solid rgba(246, 251, 250, 0.2);
+      border-radius: 8px;
+      background: rgba(246, 251, 250, 0.08);
+      color: var(--text-primary);
+      padding: var(--space-2) var(--space-3);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: transform 160ms ease-out, background 160ms ease-out;
+    }
+
+    .copy-button:hover {
+      background: rgba(246, 251, 250, 0.14);
+      transform: translateY(-1px);
+    }
+
+    .copy-button:active {
+      transform: translateY(1px);
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: 0.86fr 1.14fr;
+      gap: var(--space-8);
+      margin-top: var(--space-12);
+    }
+
+    .metric-strip {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .metric {
+      padding: var(--space-5);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--surface-elevated);
+    }
+
+    .metric strong {
+      display: block;
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 30px;
+      line-height: 1.2;
+      font-weight: 760;
+      color: var(--accent-primary);
+    }
+
+    .metric span {
+      display: block;
+      margin-top: var(--space-2);
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .matrix-item {
+      min-height: 148px;
+      padding: var(--space-5);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--surface-elevated);
+    }
+
+    .matrix-item h3 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.3;
+    }
+
+    .matrix-item p {
+      margin: var(--space-3) 0 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .footer {
+      padding: var(--space-12) var(--space-6);
+      background: var(--surface-ink);
+      color: rgba(246, 251, 250, 0.72);
+    }
+
+    .footer-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-6);
+    }
+
+    .footer strong {
+      color: var(--text-primary);
+    }
+
+    .footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      align-items: center;
+    }
+
+    .accent-word {
+      color: var(--accent-gold);
+    }
+
+    .hero-mini {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-8);
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .hero-mini span {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .hero-mini span::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-primary);
+    }
+
+    .hero-visual {
+      margin: 0;
+      min-height: 360px;
+      border: 1px solid rgba(246, 251, 250, 0.14);
+      border-radius: 8px;
+      background: rgba(14, 23, 21, 0.86);
+      box-shadow: var(--shadow-default);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-visual::after {
+      content: "IMAGEGEN / DESIGNHUB / JPG+PNG";
+      position: absolute;
+      right: var(--space-5);
+      bottom: var(--space-5);
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid rgba(246, 251, 250, 0.18);
+      border-radius: 8px;
+      background: rgba(3, 6, 5, 0.58);
+      color: rgba(246, 251, 250, 0.74);
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: 0.04em;
+    }
+
+    .hero-visual img {
+      width: 100%;
+      height: 100%;
+      min-height: 360px;
+      object-fit: cover;
+      opacity: 0.88;
+      filter: saturate(0.92) contrast(1.02);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-6);
+      margin-top: var(--space-12);
+    }
+
+    .feature-card {
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      background: rgba(14, 23, 21, 0.84);
+    }
+
+    .feature-media {
+      min-height: 220px;
+      border-bottom: 1px solid var(--border-default);
+      background:
+        linear-gradient(180deg, rgba(3, 6, 5, 0.08), rgba(3, 6, 5, 0.62)),
+        url("assets/imagegen-workflow-hero.png") 18% center / cover no-repeat;
+    }
+
+    .feature-media-element {
+      background-position: 48% center;
+    }
+
+    .feature-body {
+      padding: var(--space-6);
+    }
+
+    .feature-body h3 {
+      margin: var(--space-4) 0 var(--space-3);
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    .feature-body p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .feature-list,
+    .spec-list {
+      display: grid;
+      gap: var(--space-2);
+      margin: var(--space-5) 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .feature-list li,
+    .spec-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+
+    .feature-list li::before,
+    .spec-list li::before {
+      content: "";
+      flex: none;
+      width: 7px;
+      height: 7px;
+      margin-top: 8px;
+      border-radius: 999px;
+      background: var(--accent-gold);
+    }
+
+    .workflow-board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-4);
+      margin-top: var(--space-12);
+      padding: var(--space-4);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(8, 126, 139, 0.2), transparent 44%),
+        rgba(14, 23, 21, 0.82);
+    }
+
+    .workflow-step {
+      min-height: 210px;
+      padding: var(--space-5);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: rgba(3, 6, 5, 0.44);
+    }
+
+    .workflow-step strong {
+      display: block;
+      color: var(--accent-quiet);
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    .workflow-step h3 {
+      margin: var(--space-4) 0 var(--space-3);
+      font-size: 23px;
+      line-height: 1.25;
+    }
+
+    .workflow-step p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .workflow-explainer {
+      display: grid;
+      grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+      gap: var(--space-8);
+      align-items: start;
+      margin-top: var(--space-8);
+      padding-top: var(--space-8);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .workflow-copy h3 {
+      margin: 0 0 var(--space-3);
+      color: var(--text-primary);
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .workflow-copy p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .workflow-copy-list {
+      display: grid;
+      gap: var(--space-3);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: workflow-copy;
+    }
+
+    .workflow-copy-list li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: var(--space-3);
+      align-items: start;
+      padding: var(--space-4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: rgba(3, 6, 5, 0.36);
+      counter-increment: workflow-copy;
+    }
+
+    .workflow-copy-list li::before {
+      content: counter(workflow-copy, decimal-leading-zero);
+      display: inline-grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border-default);
+      border-radius: 999px;
+      color: var(--accent-primary);
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .workflow-copy-list strong {
+      display: block;
+      margin-bottom: var(--space-1);
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .workflow-copy-list p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-8);
+      margin-top: var(--space-12);
+    }
+
+    .spec-column h3 {
+      margin: 0 0 var(--space-4);
+      color: var(--accent-primary);
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .cta-section {
+      text-align: center;
+      padding: var(--space-24) var(--space-6);
+      background:
+        linear-gradient(180deg, rgba(9, 16, 15, 0.2), rgba(8, 126, 139, 0.12)),
+        var(--surface-secondary);
+    }
+
+    .cta-section h2 {
+      margin: 0 auto var(--space-4);
+      max-width: 760px;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.08;
+    }
+
+    .cta-section p {
+      max-width: 620px;
+      margin: 0 auto var(--space-8);
+      color: var(--text-secondary);
+      font-size: 17px;
+    }
+
+    .cta-actions {
+      justify-content: center;
+    }
+
+    @media (max-width: 860px) {
+      .hero {
+        min-height: auto;
+        padding: var(--space-4);
+        background-position: 42% center;
+      }
+
+      .hero::before {
+        background:
+          linear-gradient(90deg, rgba(16, 24, 23, 0.76), rgba(16, 24, 23, 0.34)),
+          linear-gradient(180deg, rgba(16, 24, 23, 0.2), transparent 48%);
+      }
+
+      .nav {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        width: 100%;
+        margin-bottom: var(--space-6);
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero-inner,
+      .route-grid,
+      .evidence-grid,
+      .feature-grid,
+      .workflow-board,
+      .workflow-explainer,
+      .spec-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-inner {
+        padding-top: 0;
+        gap: var(--space-5);
+      }
+
+      h1 {
+        margin: var(--space-4) 0 var(--space-4);
+      }
+
+      .hero-copy {
+        font-size: 17px;
+        line-height: 1.52;
+      }
+
+      .hero-visual,
+      .hero-visual img {
+        min-height: 152px;
+      }
+
+      .hero-actions {
+        margin-top: var(--space-5);
+      }
+
+      .hero-mini {
+        margin-top: var(--space-4);
+      }
+
+      .proof-panel {
+        display: none;
+      }
+
+      .pipeline-row {
+        grid-template-columns: 1fr;
+      }
+
+      .format-note {
+        white-space: normal;
+      }
+
+      .matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="#top" aria-label="Imagen Design Hub home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Imagen</span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">기능</a>
+          <a href="#workflow">워크플로우</a>
+          <a href="#specs">사양</a>
+          <a href="https://github.com/Tygb99/imagen-design-hub">GitHub</a>
+        </div>
+      </nav>
+
+      <div id="top" class="hero-inner">
+        <div>
+          <span class="eyebrow">MiriCanvas DesignHub automation</span>
+          <h1>디자인 자동화의<br><span class="accent-word">새로운 기준</span></h1>
+          <p class="hero-copy">
+            imagegen으로 만든 배경 JPG와 투명 PNG 요소를 DesignHub 제출 표면까지 정리합니다.
+            원본 보존, 포맷 변환, CSV 검증, Photopea 마무리를 한 흐름으로 묶었습니다.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#features">시작하기</a>
+            <a class="button button-secondary" href="https://github.com/Tygb99/imagen-design-hub#readme">문서 보기</a>
+            <a class="star-link" href="https://github.com/Tygb99/imagen-design-hub/stargazers" aria-label="View GitHub stars for Imagen Design Hub">
+              <svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3.2l2.7 5.48 6.05.88-4.38 4.27 1.03 6.02L12 17.02l-5.4 2.83 1.03-6.02-4.38-4.27 6.05-.88L12 3.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              </svg>
+              <span>Star</span>
+              <span class="star-count" data-star-count>0</span>
+            </a>
+          </div>
+          <div class="hero-mini" aria-label="Supported outputs">
+            <span>Background JPG</span>
+            <span>Transparent PNG</span>
+            <span>DesignHub CSV</span>
+          </div>
+        </div>
+
+        <figure class="hero-visual" aria-label="Imagen Design Hub production surface">
+          <img src="assets/imagegen-workflow-hero.png" alt="AI image production workflow with background image, transparent element, and metadata panels" width="1672" height="941" fetchpriority="high">
+        </figure>
+      </div>
+    </header>
+
+    <main>
+      <section id="features" class="section">
+        <div class="section-inner">
+          <p class="section-kicker">Core features</p>
+          <h2 class="section-title">프리미엄 디자인 자산 생성부터 제출 전 검수까지 자동화합니다.</h2>
+          <p class="section-lead">
+            배경과 요소는 요구 포맷이 다릅니다. 이 스킬은 생성 품질보다 먼저 깨지는 파일명,
+            uniqueId, contentType, DPI, 키워드 기준을 한 화면에서 정리합니다.
+          </p>
+
+          <div class="feature-grid">
+            <article class="feature-card">
+              <div class="feature-media" aria-hidden="true"></div>
+              <div class="feature-body">
+                <span class="badge badge-teal">JPG</span>
+                <h3>JPG 배경 생성</h3>
+                <p>수면, 종이 질감, 빛 반사처럼 full-bleed 배경에 맞는 source를 보존하고 최종 JPG와 CSV를 분리합니다.</p>
+                <ul class="feature-list">
+                  <li>source PNG 보존</li>
+                  <li>최종 JPG와 Background CSV 생성</li>
+                  <li>확장자 없는 fileName 검증</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-media feature-media-element" aria-hidden="true"></div>
+              <div class="feature-body">
+                <span class="badge badge-green">PNG</span>
+                <h3>투명 PNG 처리</h3>
+                <p>크로마키 제거와 Photopea 마무리 흐름을 분리해, alpha PNG 요소가 업로드 전 표면을 잃지 않게 합니다.</p>
+                <ul class="feature-list">
+                  <li>자동 크로마키 제거</li>
+                  <li>Photopea crop, resize, DPI 마무리</li>
+                  <li>PNG element CSV 생성</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="workflow" class="section section-alt">
+        <div class="section-inner">
+          <p class="section-kicker">Workflow</p>
+          <h2 class="section-title">세 단계로 끝나는 간단하고 강력한 프로세스</h2>
+          <p class="section-lead">
+            생성, 처리, 제출 준비를 분리해서 실패 원인을 빠르게 찾고, 같은 배치를 다시 만들 수 있게 합니다.
+          </p>
+
+          <div class="workflow-board" aria-label="Imagen Design Hub workflow">
+            <article class="workflow-step">
+              <strong>01 / PROMPT</strong>
+              <h3>Generate</h3>
+              <p>imagegen source를 생성하고 프롬프트, 원본, batch 경로를 분리해 보존합니다.</p>
+            </article>
+            <article class="workflow-step">
+              <strong>02 / PROCESS</strong>
+              <h3>Refine</h3>
+              <p>배경은 JPG로 변환하고, 요소는 chroma helper와 Photopea로 alpha 표면을 정리합니다.</p>
+            </article>
+            <article class="workflow-step">
+              <strong>03 / DELIVER</strong>
+              <h3>Validate</h3>
+              <p>DesignHub CSV의 fileName, uniqueId, contentType, 키워드 수를 업로드 전에 검증합니다.</p>
+            </article>
+          </div>
+
+          <div class="workflow-explainer" aria-label="Text workflow guide">
+            <div class="workflow-copy">
+              <h3>텍스트로 남기는 제출 워크플로우</h3>
+              <p>
+                이미지는 보기 좋게, 설명은 검수자가 따라갈 수 있게 분리합니다. 아래 순서를 기준으로
+                배경 JPG와 PNG 요소를 나누고 CSV 오류를 업로드 전에 줄입니다.
+              </p>
+            </div>
+            <ol class="workflow-copy-list">
+              <li>
+                <div>
+                  <strong>원본과 프롬프트를 먼저 보존합니다.</strong>
+                  <p>imagegen 결과물, 생성 프롬프트, batch 경로를 분리해 같은 주제를 다시 만들 수 있게 둡니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>배경은 JPG 전용 흐름으로 보냅니다.</strong>
+                  <p>수면, 물빛, 패턴처럼 화면을 채우는 이미지는 JPG로 저장하고 배경용 metadata만 연결합니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>요소는 PNG 전용 흐름으로 보냅니다.</strong>
+                  <p>피사체가 있는 이미지는 chroma cutout과 Photopea 마무리로 투명도, crop, DPI를 확인합니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>CSV는 DesignHub 규칙에 맞춥니다.</strong>
+                  <p>fileName에는 확장자를 빼고, uniqueId는 업로드 후 받은 값을 유지하며, 키워드는 20~25개로 정리합니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>제출 전 눈검수와 숫자 검수를 같이 봅니다.</strong>
+                  <p>흰색, 어두운 배경, 체커보드 위에서 깨짐을 확인하고 산출 폴더와 CSV가 같은 batch인지 맞춥니다.</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="specs" class="section">
+        <div class="section-inner">
+          <p class="section-kicker">Technical specs</p>
+          <h2 class="section-title">제출 전에 확인할 기준을 작게, 또렷하게 남겼습니다.</h2>
+
+          <div class="spec-grid">
+            <article class="spec-column">
+              <h3>의존성</h3>
+              <ul class="spec-list">
+                <li>Python 3.10 이상</li>
+                <li>Pillow 이미지 처리 라이브러리</li>
+                <li>NumPy 크로마키 처리</li>
+                <li>Chromium 기반 브라우저와 Photopea</li>
+              </ul>
+            </article>
+            <article class="spec-column">
+              <h3>출력 형식</h3>
+              <ul class="spec-list">
+                <li>고해상도 JPG 배경 이미지</li>
+                <li>투명 alpha PNG 요소</li>
+                <li>DesignHub CSV 메타데이터</li>
+                <li>프롬프트 로그와 리뷰 시트</li>
+              </ul>
+            </article>
+            <article class="spec-column">
+              <h3>검증 기준</h3>
+              <ul class="spec-list">
+                <li>fileName은 확장자 없이 stem만 사용</li>
+                <li>업로드 전 uniqueId는 빈칸 유지</li>
+                <li>키워드는 20-25개 사이에서 중복 제거</li>
+                <li>PNG 요소는 WebP 없이 alpha PNG로 유지</li>
+              </ul>
+            </article>
+            <article class="spec-column">
+              <h3>라이선스</h3>
+              <ul class="spec-list">
+                <li>MIT 라이선스</li>
+                <li>macOS, Linux, Windows PowerShell 예시 포함</li>
+                <li>한국어와 영어 스킬 문서 유지</li>
+                <li>GitHub Pages 공개 랜딩 페이지 지원</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-section" aria-label="Get started">
+        <h2>지금 시작하세요</h2>
+        <p>Imagen Design Hub로 DesignHub 이미지 제작 흐름을 더 단순하게 만들고, 제출 전 실패 지점을 먼저 줄이세요.</p>
+        <div class="hero-actions cta-actions">
+          <a class="button button-primary" href="https://github.com/Tygb99/imagen-design-hub#readme">문서 읽기</a>
+          <a class="star-link" href="https://github.com/Tygb99/imagen-design-hub/stargazers" aria-label="View GitHub stars for Imagen Design Hub">
+            <svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3.2l2.7 5.48 6.05.88-4.38 4.27 1.03 6.02L12 17.02l-5.4 2.83 1.03-6.02-4.38-4.27 6.05-.88L12 3.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+            <span>Star</span>
+            <span class="star-count" data-star-count>0</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div><strong>Imagen Design Hub</strong><br>Codex skill for DesignHub raster asset production.</div>
+        <div class="footer-actions">
+          <a class="button button-secondary" href="https://github.com/Tygb99/imagen-design-hub">Repository</a>
+          <a class="star-link star-link-footer" href="https://github.com/Tygb99/imagen-design-hub/stargazers" aria-label="View GitHub stars for Imagen Design Hub">
+            <svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3.2l2.7 5.48 6.05.88-4.38 4.27 1.03 6.02L12 17.02l-5.4 2.83 1.03-6.02-4.38-4.27 6.05-.88L12 3.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+            <span>Star</span>
+            <span class="star-count" data-star-count>0</span>
+          </a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function formatStarCount(value) {
+      if (!Number.isFinite(value)) return "0";
+      return new Intl.NumberFormat("en", { notation: value >= 1000 ? "compact" : "standard" }).format(value);
+    }
+
+    async function updateStarCounts() {
+      const counters = document.querySelectorAll("[data-star-count]");
+      if (!counters.length) return;
+
+      try {
+        const response = await fetch("https://api.github.com/repos/Tygb99/imagen-design-hub", {
+          headers: { Accept: "application/vnd.github+json" },
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        const stars = formatStarCount(Number(data.stargazers_count));
+        for (const counter of counters) {
+          counter.textContent = stars;
+          counter.setAttribute("aria-label", `${stars} GitHub stars`);
+        }
+      } catch {
+        for (const counter of counters) {
+          counter.textContent = "0";
+        }
+      }
+    }
+
+    updateStarCounts();
+  </script>
+</body>
+</html>
