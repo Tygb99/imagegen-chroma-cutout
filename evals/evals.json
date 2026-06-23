@@ -1,40 +1,40 @@
 {
-  "skill_name": "imagegen-chroma-cutout",
+  "skill_name": "imagen-design-hub",
   "evals": [
     {
       "id": 1,
-      "prompt": "미리캔버스 DesignHub에 올릴 투명 PNG 요소로 글래스모피즘 물방울 6개 만들어줘. imagegen으로 만들고 헬퍼로 배경제거한 다음 Photopea로 350DPI 처리해서 run 폴더에 source/raw/processed를 나눠 저장해줘.",
-      "expected_output": "Uses built-in image_gen with a flat chroma-key background, preserves source images, runs the bundled scripts/remove_chroma_key.py into assets/raw, creates or uses a Photopea runner before calling the assets upload-ready, routes upload-ready assets through Photopea into assets/processed, creates buyer-facing DesignHub keywords with 20-25 unique terms, creates DesignHub-safe unique upload basenames plus a matching CSV, validates alpha/size/DPI, keyword count, and CSV-to-PNG alignment, and reports paths without uploading externally.",
+      "prompt": "미리캔버스 오늘 챌린지 배경 요소야. 수영장 바닥, 물결 또는 수면 배경을 imagegen으로 12개 만들고 JPG로 저장해줘. CSV도 같이 만들어줘.",
+      "expected_output": "Routes to background-jpg, uses built-in image_gen once per variant, preserves source PNGs in the workspace, converts final files to JPG, makes a contact sheet, and writes DesignHub metadata with extensionless fileName, blank uniqueId, tier Premium, contentType Background, and 20-25 buyer-facing keywords.",
       "files": []
     },
     {
       "id": 2,
+      "prompt": "아까 HTML보다 imagegen 버전이 더 좋아. 그 스타일로 DesignHub 배경 JPG 후보를 더 뽑아줘.",
+      "expected_output": "Recognizes natural/photorealistic background quality as a reason to prefer imagegen over HTML, keeps the new imagegen batch separate from prior HTML outputs, preserves source PNGs, converts to validated JPG backgrounds, and reports the correct folders and CSV without external submission.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "DesignHub CSV 등록했더니 uniqueId가 잘못됐고 파일명 확장자를 빼라고 나와. 배경 JPG용 CSV를 다시 만들어줘.",
+      "expected_output": "Repairs the background metadata CSV by removing extensions from fileName, leaving uniqueId blank unless DesignHub provided it, using contentType Background, preserving keywords, and validating row-to-JPG stem matching.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "미리캔버스 DesignHub에 올릴 투명 PNG 요소로 글래스모피즘 물방울 6개 만들어줘. imagegen으로 만들고 헬퍼로 배경제거한 다음 Photopea로 350DPI 처리해줘.",
+      "expected_output": "Routes to png-element, generates flat chroma-key source images, preserves sources, runs scripts/remove_chroma_key.py into assets/raw, uses Photopea/project runner for assets/processed, creates upload-safe unique PNG basenames and matching CSV, and validates alpha, size, DPI, previews, keywords, and CSV alignment.",
+      "files": []
+    },
+    {
+      "id": 5,
       "prompt": "이 캐릭터 스티커를 투명 배경 PNG로 만들고 싶어. 초록색 옷이라 배경색은 겹치지 않게 골라서 생성하고 로컬 helper로 배경 제거까지 해줘.",
       "expected_output": "Chooses a non-green key color such as magenta, prompts imagegen to avoid that key color in the subject, runs the bundled helper, checks alpha/corners/fringes, and saves non-destructively.",
       "files": []
     },
     {
-      "id": 3,
-      "prompt": "투명한 유리컵 제품컷을 native transparent로 바로 뽑아줘. 가능하면 배경제거 없이.",
-      "expected_output": "Recognizes glass/native transparency as complex, explains the built-in chroma-key default versus CLI gpt-image-1.5 native transparency fallback, and asks for confirmation before switching to CLI/API.",
-      "files": []
-    },
-    {
-      "id": 4,
-      "prompt": "이미 raw 투명 PNG는 있어. 이걸 포토피아로 크롭하고 350dpi 맞춰서 processed 폴더에 넣고 validate까지 해줘.",
-      "expected_output": "Skips new image generation when raw alpha PNGs already exist, creates the bundled Photopea runner or uses a stronger project-specific runner, saves processed outputs separately, validates the run, and reports any missing metadata, keyword quality, CSV alignment, or review artifacts.",
-      "files": []
-    },
-    {
-      "id": 5,
-      "prompt": "DesignHub에서 CSV 등록했더니 12개 전부 파일명이 중복됐다고 떠. 기존 PNG는 건드리지 말고 재등록할 새 파일명 폴더랑 CSV 만들어줘.",
-      "expected_output": "Treats the failure as upload-facing basename collision, preserves existing processed PNGs, creates a separate uniquely named PNG folder with matching CSV fileName values, validates no duplicate names, no missing PNGs, no extra PNGs, and reports the new folder/CSV without submitting externally.",
-      "files": []
-    },
-    {
       "id": 6,
-      "prompt": "DesignHub CSV 키워드도 같이 점검해줘. Photopea, PNG, 2D 같은 제작 용어 빼고 검색 잘 될 만한 키워드 20~25개로 정리해.",
-      "expected_output": "Generates or rewrites metadata keywords as 20-25 unique buyer-facing search terms, prioritizes official topic and subject/material/style terms, removes production/file/admin terms such as Photopea, API, PNG, 2D, run IDs, and validates keyword count and duplicate removal before reporting.",
+      "prompt": "투명한 유리컵 제품컷을 native transparent로 바로 뽑아줘. 가능하면 배경제거 없이.",
+      "expected_output": "Recognizes glass/native transparency as complex, explains the built-in chroma-key default versus CLI native transparency fallback, and asks for confirmation before switching to CLI/API.",
       "files": []
     }
   ]

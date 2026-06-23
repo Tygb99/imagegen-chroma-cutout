@@ -1,53 +1,73 @@
-# imagegen-chroma-cutout
+# imagen-design-hub
 
 [한국어 README](README.ko.md)
 
-Codex skill for generating transparent PNG/WebP cutouts from `image_gen` outputs.
+Codex skill for creating MiriCanvas / DesignHub raster assets with `image_gen`.
 
-The workflow is intentionally public-repo friendly:
+It covers two common routes:
 
-1. Generate a raster image on a flat chroma-key background with the built-in `image_gen` tool.
-2. Preserve the source image.
-3. Remove the chroma-key background with the bundled `scripts/remove_chroma_key.py` helper.
-4. For upload-ready PNG elements, route the alpha image through Photopea with the bundled runner or a project-specific Photopea runner for crop, resize, and DPI finishing.
-5. Generate buyer-facing DesignHub keywords and metadata.
-6. For DesignHub uploads, copy processed PNGs to upload-safe unique basenames and write a matching CSV.
-7. Validate alpha, corners, background fringes, image size, DPI, keyword count, CSV basename alignment, and preview surfaces.
+1. **JPG background elements**: generate natural bitmap backgrounds with built-in `image_gen`, preserve source PNGs, convert to validated JPG, and write DesignHub CSV rows with `contentType=Background`.
+2. **Transparent PNG elements**: generate on a flat chroma-key background, remove the key with the bundled helper, finish upload-ready PNGs through Photopea when needed, and write matching DesignHub metadata.
+
+The skill intentionally keeps source files, final files, review sheets, prompt logs, and CSVs separated so a DesignHub batch can be audited before upload.
 
 ## Dependencies
 
-Required for chroma-key cutouts:
+Required for image generation:
 
-- Codex or another agent runtime that can use the `image_gen` tool.
+- Codex or another agent runtime that can use the built-in `image_gen` tool.
+
+Required for local processing:
+
 - Python 3.10 or newer.
 - Pillow.
-- NumPy.
+- NumPy for the chroma-key helper.
 
-Install the Python dependency:
+Install Python dependencies only when needed:
 
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
-NumPy is required because the chroma-key helper uses vectorized pixel operations. On a 12-image 2026-06-22 glassmorphism batch, the NumPy CLI path ran about 8.2x faster than the prior Pillow loop path while leaving no visible key-color residue.
-
-Required for upload-ready DesignHub/MiriCanvas PNG elements:
+Required for upload-ready PNG elements:
 
 - Photopea in a Chromium-family browser.
 - The bundled `scripts/write_photopea_runner.py` runner generator, unless the current project has a stronger Photopea runner.
 
-Optional:
-
-- Project-specific Photopea runners, for example `node src/cli.mjs photopea-runner --run <run-id>`.
-- Project-specific validation commands, for example `node src/cli.mjs validate --run <run-id>` in the MiriCanvas/DesignHub pipeline.
-
 ## Repository Layout
 
-- `src/imagegen_chroma_cutout/`: reusable Python implementation.
+- `SKILL.md`: routing and validation instructions.
+- `src/imagegen_chroma_cutout/`: reusable Python implementation kept under the old package name for compatibility.
+- `scripts/remove_chroma_key.py`: chroma-key to alpha helper.
+- `scripts/write_photopea_runner.py`: bundled Photopea runner generator.
+- `scripts/prepare_designhub_unique_upload.py`: upload-safe basename/CSV helper for PNG element batches.
 - `assets/photopea_runner.html`: browser template for the bundled Photopea runner.
-- `scripts/`: thin CLI wrappers for the commands shown below.
+- `evals/evals.json`: routing test prompts.
 
-## Helper Usage
+## DesignHub Background JPG Route
+
+Use imagegen for natural backgrounds such as pool water, paper textures, light reflections, realistic patterns, and other bitmap backgrounds where generated visual quality matters.
+
+Expected local layout:
+
+```text
+outputs/<run-id>/assets/source-imagegen-batch/
+outputs/<run-id>/assets/background-jpg-imagegen/
+outputs/<run-id>/metadata/
+outputs/<run-id>/review/
+outputs/<run-id>/logs/
+```
+
+CSV rules for background JPGs:
+
+- `fileName`: basename only, no `.jpg`
+- `uniqueId`: blank unless DesignHub provided it
+- `tier`: `Premium`
+- `contentType`: `Background`
+
+## Transparent PNG Element Route
+
+Use the chroma-key helper and Photopea route for PNG elements.
 
 ```bash
 python3 scripts/remove_chroma_key.py \
@@ -60,9 +80,7 @@ python3 scripts/remove_chroma_key.py \
   --despill
 ```
 
-## Photopea Runner
-
-DesignHub/MiriCanvas upload-ready assets should not stop at raw alpha PNGs. Generate a Photopea runner, open it in Chrome, select the raw PNG files, choose the processed output folder, and run the batch.
+For DesignHub/MiriCanvas upload-ready PNGs, generate or use a Photopea runner:
 
 ```bash
 python3 scripts/write_photopea_runner.py \
@@ -71,43 +89,12 @@ python3 scripts/write_photopea_runner.py \
   --out outputs/<run-id>/photopea/runner.html
 ```
 
-The runner trims transparent bounds, resizes to the target range, exports PNG through Photopea, and patches the PNG DPI metadata in the browser. If a local project has a stronger runner such as `node src/cli.mjs photopea-runner --run <run-id>`, use that project runner instead.
-
-## DesignHub Filename De-duplication
-
-DesignHub can reject metadata registration when `fileName` values collide with names already used in the account, even if the current CSV has no internal duplicates. Avoid generic names such as `job-001-01` for upload-facing metadata.
-
-Create an upload-specific PNG folder and matching CSV:
-
-```bash
-python3 scripts/prepare_designhub_unique_upload.py \
-  --csv outputs/<run-id>/metadata/preupload.csv \
-  --images-dir outputs/<run-id>/assets/processed \
-  --out-dir outputs/<run-id>/assets/processed-designhub-unique-YYYYMMDD-HHmm \
-  --out-csv outputs/<run-id>/metadata/designhub-preupload-unique-YYYYMMDD-HHmm.csv \
-  --prefix short-topic-slug-YYYYMMDD-HHmm
-```
-
-Upload the copied PNG folder and the generated CSV together. Their basenames and `fileName` values are designed to match one-to-one.
-
 ## DesignHub Keyword Rules
 
-For DesignHub metadata, generate keywords for buyers, not for the production workflow.
-
-- Use 20 to 25 comma-separated keywords. Aim for 25.
-- Remove duplicates after trimming whitespace and normalizing case.
-- Put the strongest 8 to 12 subject/material/style terms first.
-- Expand with usage contexts, mood, season, and related objects.
-- Always remove process, file, admin, and filler terms such as `Photopea`, `API`, `post-processing`, `prompt`, `imagegen`, `background removal`, `PNG`, `2D`, `350DPI`, `transparent background`, run IDs, `DesignHub`, `MiriCanvas`, `CSV`, `Premium`, `clipart`, and generic design-source labels.
-- Keep `elementName` short and human-readable. Do not include production terms there either.
-
-Good keyword direction:
-
-```text
-glassmorphism, soap bubble, water drop, crystal, hologram, highlight, glossy, pastel, summer, banner decoration
-```
-
-In Korean-first workflows, prefer Korean search terms and add common loanwords only when they are useful search terms.
+- Use 20 to 25 comma-separated buyer-facing keywords.
+- Remove duplicates.
+- Remove production, file, admin, and filler terms such as `Photopea`, `API`, `imagegen`, `PNG`, `JPG`, `2D`, `350DPI`, run IDs, `DesignHub`, `MiriCanvas`, `CSV`, `Premium`, `clipart`, `design source`, and similar terms.
+- Keep `elementName` short and human-readable.
 
 ## License
 
