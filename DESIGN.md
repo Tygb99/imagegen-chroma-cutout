@@ -31,7 +31,7 @@ Imagen Design Hub feels like a calm production bench for visual assets: precise,
 
 - Use aquatic tones for surfaces and the teal accent for actions.
 - Use the coral accent only for contrast moments, never for a full section.
-- Keep JPG/PNG status chips semantic: teal for background, green for ready, coral for rejection risk.
+- Keep format/status chips semantic: teal for background and SVG, green for ready PNG, coral for GIF motion or rejection risk.
 
 ## 3. Typography
 
@@ -103,7 +103,7 @@ All spacing derives from a base of 4px.
 
 ### Pipeline Row
 - **Structure**: label, format badge, output status, short proof.
-- **Variants**: background-jpg, png-element, metadata.
+- **Variants**: background-jpg, png-element, svg-element, gif-element, metadata.
 - **Spacing**: --space-4 padding, --space-2 internal gap.
 - **States**: hover highlight only.
 - **Accessibility**: readable text without relying on color.
@@ -127,7 +127,7 @@ All spacing derives from a base of 4px.
 
 ### Workflow Explainer
 - **Structure**: concise intro copy paired with an ordered text list of production steps.
-- **Variants**: JPG background path, PNG element path, CSV validation path.
+- **Variants**: JPG background path, PNG element path, SVG element path, GIF element path, CSV validation path.
 - **Spacing**: --space-8 top separation from the visual workflow board, --space-4 item padding.
 - **States**: static documentation surface.
 - **Accessibility**: semantic ordered list with readable labels that do not rely on color.

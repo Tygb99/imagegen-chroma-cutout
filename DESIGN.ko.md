@@ -31,7 +31,7 @@ Imagen Design Hub는 시각 asset을 다루는 차분한 제작 벤치처럼 느
 
 - 표면에는 물빛 계열을 쓰고, 액션에는 teal accent를 사용한다.
 - coral accent는 대비가 필요한 순간에만 사용하고 섹션 전체를 지배하지 않는다.
-- JPG/PNG 상태 chip은 의미를 가진다. 배경은 teal, 준비 완료는 green, 거절 위험은 coral이다.
+- format/status chip은 의미를 가진다. 배경과 SVG는 teal, 준비된 PNG는 green, GIF motion이나 거절 위험은 coral이다.
 
 ## 3. 타이포그래피
 
@@ -103,7 +103,7 @@ Imagen Design Hub는 시각 asset을 다루는 차분한 제작 벤치처럼 느
 
 ### Pipeline Row
 - **구조**: label, format badge, output status, 짧은 근거.
-- **변형**: background-jpg, png-element, metadata.
+- **변형**: background-jpg, png-element, svg-element, gif-element, metadata.
 - **간격**: padding --space-4, 내부 gap --space-2.
 - **상태**: hover highlight.
 - **접근성**: 색상만으로 의미를 전달하지 않는다.
@@ -127,7 +127,7 @@ Imagen Design Hub는 시각 asset을 다루는 차분한 제작 벤치처럼 느
 
 ### Workflow Explainer
 - **구조**: 짧은 소개 문구와 production step을 담은 순서형 텍스트 목록을 나란히 배치한다.
-- **변형**: JPG background path, PNG element path, CSV validation path.
+- **변형**: JPG background path, PNG element path, SVG element path, GIF element path, CSV validation path.
 - **간격**: visual workflow board와 --space-8 이상 분리하고, item padding은 --space-4를 쓴다.
 - **상태**: static documentation surface.
 - **접근성**: 색에 의존하지 않는 label과 semantic ordered list를 사용한다.

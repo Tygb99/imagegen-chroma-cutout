@@ -1,25 +1,30 @@
 ---
 name: imagen-design-hub
-description: 사용자가 imagegen으로 MiriCanvas 또는 DesignHub용 비트맵 산출물을 준비할 때 이 스킬을 사용한다. JPG 배경 요소, AI 생성 수영장/물빛/패턴/질감 배경, 투명 PNG 컷아웃, PNG 요소, 크로마키 배경 제거, Photopea crop/DPI 마무리, DesignHub 메타데이터 CSV 수정, 키워드 정리, 업로드 안전 파일명 배치를 다룬다. 자연스럽거나 실사풍 DesignHub 배경에는 built-in image_gen을 우선하고, source PNG를 작업 폴더에 보존한 뒤 최종 배경을 검증된 JPG로 변환한다. 투명 PNG 요소에만 크로마키 제거를 사용하고, 준비 완료를 보고하기 전에 파일 형식, 크기, DPI, alpha/no-alpha, CSV fileName/uniqueId/contentType, 키워드, 리뷰 시트를 반드시 검증한다.
+description: 사용자가 imagegen 또는 로컬 source art로 MiriCanvas/DesignHub 산출물을 준비할 때 사용한다. JPG 배경, 사진 JPG, 투명 PNG 요소, SVG 요소, GIF 요소, 크로마키 컷아웃, Photopea 마무리, DesignHub CSV 수정, 키워드 정리, 업로드 안전 파일명, 공식 요소 가이드 라우팅을 다룬다.
 ---
 
 # Imagen Design Hub
 
 [English version](SKILL.md)
 
-이 스킬은 MiriCanvas / DesignHub에 올릴 `imagegen` 기반 비트맵 산출물을 다룬다. 기존 투명 PNG 중심 흐름을 포함하되, 이제 투명 PNG 요소뿐 아니라 DesignHub 배경 JPG까지 같은 판단 체계 안에서 처리한다.
+이 스킬은 `image_gen`, 로컬 source art, 벡터/애니메이션 도구로 준비하는 MiriCanvas / DesignHub 시각 산출물을 다룬다. raster imagegen 경로와 공식 SVG/GIF 요소 가이드 라우팅을 한곳에서 관리한다.
 
 핵심 분기:
 
 - 배경 요소가 목표이면 `image_gen -> source PNG 보존 -> JPG 변환/검증 -> Background CSV`.
 - 투명 PNG 요소가 목표이면 `image_gen -> chroma-key source 보존 -> helper alpha -> Photopea -> PNG element CSV`.
+- SVG 요소가 목표이면 `vector source -> SVG cleanup -> SVG validation -> SVG element CSV`.
+- GIF 요소가 목표이면 `frame/animation source -> GIF encode -> animation/size validation -> GIF CSV`.
 - HTML/canvas보다 자연스러운 수면, 물결, 빛반사, 사진풍 질감, 실사 배경이 더 중요하면 imagegen 배경 경로를 우선한다.
+- 공식 요소 가이드 전체 링크맵이 필요하면 [references/designhub-element-guide-map.ko.md](references/designhub-element-guide-map.ko.md)를 읽는다.
 
 ## 의존성
 
 - 생성 필수: built-in `image_gen` 도구.
 - 로컬 이미지 처리 필수: Python 3.10 이상, Pillow, 그리고 `scripts/remove_chroma_key.py` 사용 시 NumPy.
 - 업로드용 PNG 요소 필수: Chromium 계열 브라우저의 Photopea와 Photopea runner. 프로젝트 전용 runner가 있으면 우선 사용하고, 없으면 `scripts/write_photopea_runner.py`를 사용한다.
+- SVG 요소 필수: 실제 벡터 source/editor/export 경로와 XML/SVG 검증. raster 이미지만 embed한 SVG는 제출하지 않는다.
+- GIF 요소 필수: frame 또는 animation source와 loop/playback, 투명도, 크기, 용량을 확인할 GIF encoder/player.
 - 재사용 Python 코드는 `src/imagegen_chroma_cutout/`에 있다. 기존 스크립트 호환성을 위해 예전 패키지명을 유지한다.
 - 사용자가 명시적으로 승인하지 않은 외부 업로드나 제출 작업은 하지 않는다.
 
@@ -76,6 +81,34 @@ outputs/<run-id>/logs/
 ### `photo-jpg`
 
 배경 요소가 아닌 실제 사진에 사용한다. JPG라는 이유만으로 실제 사진을 배경으로 잘못 분류하지 않는다.
+
+### `svg-element`
+
+명확한 피사체와 완전히 제거된 배경을 가진 단순하고 색상 변경 가능한 벡터 일러스트에 사용한다.
+
+- 손으로 작성한 SVG, 벡터 에디터 export, trace/rebuild 벡터 art처럼 실제 벡터 workflow를 사용한다.
+- 형태는 단순하게 유지하고 색상은 5개 이하로 정리한다.
+- 같은 flat 디자인이 MiriCanvas에서 색상 변경 가능해야 한다면 PNG보다 SVG를 우선한다.
+- 3D, 그라데이션, 사진 같은 질감, 복잡한 raster art, embed bitmap 출력에는 SVG를 쓰지 않는다. 이런 경우 `png-element`로 보낸다.
+- DesignHub CSV의 `contentType` 값은 `SVG element`를 사용한다.
+- CSV `fileName`에서 `.svg`를 제거한다.
+- 확장형 요소는 먼저 SVG로 업로드한 뒤 메타데이터 입력 단계에서 크기조정 타입을 설정한다.
+
+### `gif-element`
+
+명확한 피사체와 완전히 제거된 배경을 가진 움직이는 일러스트/아트 요소에 사용한다.
+
+- frame 또는 animation source 파일을 사용하고 `.gif`로 encode한다.
+- 최종 산출물은 눈에 보이게 움직여야 한다. 정지 이미지를 GIF로 저장한 것만으로는 부족하다.
+- animation format과 source가 허용하는 범위에서 배경을 제거/투명하게 유지한다.
+- 촬영 영상/footage를 GIF 요소로 취급하지 않는다. 영상은 권한이 필요한 `video-element` 경로다.
+- DesignHub CSV의 `contentType` 값은 `GIF`를 사용한다.
+- CSV `fileName`에서 `.gif`를 제거한다.
+
+### 권한형 또는 에디터 전용 경로
+
+- `video-element`: MP4 동영상 제출은 DesignHub 포트폴리오 심사와 업로드 권한이 필요하다. 사용자가 이미 권한을 보유한 경우가 아니면 upload-ready MP4 제출을 약속하지 않는다.
+- `combination-element`: 미리캔버스 에디터에서 만들고 디자인 문서 URL로 등록한다. 이 스킬이 만드는 로컬 파일 배치가 아니다.
 
 ## Imagegen 배경 워크플로
 
@@ -226,6 +259,44 @@ DesignHub/MiriCanvas PNG 요소 작업:
 
 사용자가 수동 이미지 편집을 명시적으로 요청하지 않으면 JPG 배경에는 Photopea를 건너뛴다.
 
+## SVG 요소 워크플로
+
+사용자가 SVG 요소, vector 요소, 색상 변경 가능한 icon, 단순 sticker, 확장형 요소, 말풍선, label, flag, memo note, 깨끗하게 resize되어야 하는 shape를 요청할 때 이 경로를 사용한다.
+
+1. vector source에서 시작한다. imagegen을 아이디어용으로 썼다면 최종 export 전에 실제 vector shape로 다시 만들거나 trace한다.
+2. 사각형 이미지처럼 동작하는 배경과 artboard를 제거한다.
+3. 명확한 단일 피사체 또는 재사용 가능한 요소를 유지한다. template처럼 완성된 layout은 피한다.
+4. 보이는 fill/stroke 색상을 5개 이하로 줄이고 정리한다.
+5. embedded raster image, external link, script, `foreignObject`, 숨은 watermark, 알 수 없는 font text, artboard 밖 stray object를 피한다.
+6. 적절한 `viewBox`가 있는 깨끗한 `.svg`로 export한다.
+7. 파일 규격을 검증한다.
+   - SVG 확장자
+   - export 도구가 DPI를 제공한다면 최소 72 DPI
+   - 최대 dimension 6000 px
+   - 150 MB 미만
+8. CSV 행은 확장자 없는 `fileName`, 빈칸 또는 DesignHub 제공 `uniqueId`, `tier=Premium`, `contentType=SVG element`로 작성한다.
+
+확장형 SVG 요소도 파일 workflow는 동일하다. 확장형/기본형 차이는 파일 확장자가 아니라 메타데이터의 크기조정 타입에서 선택한다.
+
+## GIF 요소 워크플로
+
+사용자가 GIF 요소, animated sticker, looping illustration, motion badge, 움직이는 icon형 art를 요청할 때 이 경로를 사용한다.
+
+1. frame/animation source 파일을 만들거나 모은다. source 폴더에 보존한다.
+2. 모든 frame에서 피사체가 명확하고, 잘리지 않고, 배경과 분리되어 있어야 한다.
+3. 사용자가 DesignHub와 무관한 실험을 명시하지 않는 한 촬영 footage를 GIF 요소로 변환하지 않는다. DesignHub 영상은 권한이 필요한 별도 MP4 경로다.
+4. `.gif`로 encode하고 playback, loop timing, edge residue, frame jitter를 확인한다.
+5. 파일 규격을 검증한다.
+   - GIF 확장자
+   - 정지 GIF가 아니라 눈에 보이게 움직임
+   - 가능한 경우 최소 72 DPI
+   - 최소 700 px
+   - 최대 1920 px
+   - 25 MB 미만
+6. CSV 행은 확장자 없는 `fileName`, 빈칸 또는 DesignHub 제공 `uniqueId`, `tier=Premium`, `contentType=GIF`로 작성한다.
+
+요청된 움직임이 촬영 영상에 가깝다면 `video-element`로 보내고, MP4 제출 배치를 준비하기 전에 사용자가 DesignHub 영상 권한을 보유했는지 확인한다.
+
 ## 메타데이터 규칙
 
 DesignHub/MiriCanvas 메타데이터는 제작 과정이 아니라 구매자가 검색할 단어를 설명해야 한다.
@@ -234,7 +305,7 @@ DesignHub/MiriCanvas 메타데이터는 제작 과정이 아니라 구매자가 
 - 중복을 제거한다.
 - 공식 주제어와 구체적인 시각 용어를 앞쪽에 둔다.
 - `keywords`와 `elementName`에서 제작/프로세스/파일/관리 용어를 제거한다.
-- `Photopea`, `API`, `후처리`, `프롬프트`, `imagegen`, `배경제거`, `PNG`, `JPG`, `2D`, `350DPI`, `투명배경`, run ID, 날짜, `DesignHub`, `MiriCanvas`, `CSV`, `Premium`, `클립아트`, `디자인소스`, `배경소스`, `꾸밈요소` 같은 용어를 피한다.
+- `Photopea`, `API`, `후처리`, `프롬프트`, `imagegen`, `배경제거`, `PNG`, `JPG`, `SVG`, `GIF`, `MP4`, `2D`, `350DPI`, `투명배경`, run ID, 날짜, `DesignHub`, `MiriCanvas`, `CSV`, `Premium`, `클립아트`, `디자인소스`, `배경소스`, `꾸밈요소` 같은 용어를 피한다.
 - 사용자가 특정 키워드를 유지하거나 제거하라고 명시하면 CSV와 문서 전체에 적용한다.
 
 CSV content type 값:
@@ -282,7 +353,7 @@ py -3 ./scripts/prepare_designhub_unique_upload.py `
   --prefix "<short-topic-slug>-<YYYYMMDD>-<HHmm>"
 ```
 
-JPG 배경도 generic name은 피한다. topic slug와 timestamp/index를 사용하고, CSV `fileName`에는 확장자를 넣지 않는다.
+JPG 배경, SVG 요소, GIF 요소도 generic name은 피한다. topic slug와 timestamp/index를 사용하고, CSV `fileName`에는 확장자를 넣지 않는다.
 
 ## 검증
 
@@ -314,6 +385,27 @@ JPG 배경도 generic name은 피한다. topic slug와 timestamp/index를 사용
 - CSV basename과 processed/upload PNG basename이 일치한다.
 - 키워드가 20~25개의 고유한 구매자 검색어다.
 
+### SVG 요소 검사
+
+- 최종 파일이 SVG이며 raster image를 `.svg`로 이름만 바꾼 것이 아니다.
+- XML이 정상 parsing된다.
+- embedded raster `<image>` payload, script, external link, `foreignObject`가 없다.
+- `viewBox`와 dimension이 있고 최대 6000 px 제한 안에 있다.
+- 보이는 색상이 5개 이하이다.
+- 배경이 제거되어 있으며, 요소 자체가 재사용 가능한 memo/sticker shape인 경우가 아니라면 사각형 backdrop을 포함하지 않는다.
+- crack, stray shape, 숨은 off-artboard object, watermark, logo, text artifact가 없다.
+- CSV `contentType`이 `SVG element`이고 CSV basename이 최종 SVG basename과 확장자 없이 일치한다.
+
+### GIF 요소 검사
+
+- 최종 파일이 GIF이고 눈에 보이게 움직인다.
+- 크기가 최소 700 px, 최대 1920 px 범위다.
+- 파일 크기가 25 MB 미만이다.
+- 적절한 경우 배경이 제거/투명하고 frame 사이에서 flicker가 없다.
+- loop 전체에서 피사체가 명확하고 잘리지 않으며 안정적이다.
+- GIF로 잘못 분류한 video element가 아니라 움직이는 일러스트/아트다.
+- CSV `contentType`이 `GIF`이고 CSV basename이 최종 GIF basename과 확장자 없이 일치한다.
+
 프로젝트가 적용 가능한 검증 명령을 제공하면 실행한다.
 
 ```bash
@@ -331,7 +423,7 @@ node src/cli.mjs validate --run outputs/<run-id>
 구체적인 경로와 산출물을 보고한다.
 
 - built-in `image_gen` 또는 CLI fallback
-- 산출물 종류: `background-jpg`, `png-element`, `photo-jpg`
+- 산출물 종류: `background-jpg`, `png-element`, `photo-jpg`, `svg-element`, `gif-element`, `video-element`, `combination-element`
 - source 이미지 폴더
 - 최종 이미지 폴더
 - metadata CSV 경로

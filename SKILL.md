@@ -1,25 +1,30 @@
 ---
 name: imagen-design-hub
-description: Use this skill whenever the user is preparing MiriCanvas or DesignHub raster assets with imagegen: JPG background elements, AI-generated pool/water/pattern/texture backgrounds, transparent PNG cutouts, PNG elements, chroma-key background removal, Photopea crop/DPI finishing, DesignHub metadata CSV repair, keyword cleanup, or upload-safe filename batches. Prefer built-in image_gen for natural/photorealistic DesignHub backgrounds, preserve source PNGs in the workspace, convert final backgrounds to validated JPG, use chroma-key removal only for transparent PNG elements, and always validate file format, dimensions, DPI, alpha/no-alpha, CSV fileName/uniqueId/contentType, keywords, and review sheets before reporting readiness.
+description: Use when preparing MiriCanvas or DesignHub assets from imagegen or local source art: JPG backgrounds, photo JPGs, transparent PNG elements, SVG elements, GIF elements, chroma-key cutouts, Photopea finishing, DesignHub CSV repair, keyword cleanup, upload-safe filenames, or official element-guide routing.
 ---
 
 # Imagen Design Hub
 
-[한국어판](SKILL.ko.md)
+[Korean version](SKILL.ko.md)
 
-이 스킬은 MiriCanvas / DesignHub에 올릴 `imagegen` 기반 비트맵 산출물을 다룬다. 기존 투명 PNG 중심 흐름을 포함하되, 이제 투명 PNG 요소뿐 아니라 DesignHub 배경 JPG까지 같은 판단 체계 안에서 처리한다.
+This skill handles MiriCanvas / DesignHub visual assets prepared from `image_gen`, local source art, or vector/animation tools. It keeps raster imagegen routes and official SVG/GIF element-guide routing in one place.
 
-핵심 분기:
+Core routes:
 
-- 배경 요소가 목표이면 `image_gen -> source PNG 보존 -> JPG 변환/검증 -> Background CSV`.
-- 투명 PNG 요소가 목표이면 `image_gen -> chroma-key source 보존 -> helper alpha -> Photopea -> PNG element CSV`.
-- HTML/canvas보다 자연스러운 수면, 물결, 빛반사, 사진풍 질감, 실사 배경이 더 중요하면 imagegen 배경 경로를 우선한다.
+- If the target is a background element, use `image_gen -> preserve source PNG -> convert/validate JPG -> Background CSV`.
+- If the target is a transparent PNG element, use `image_gen -> preserve chroma-key source -> helper alpha -> Photopea -> PNG element CSV`.
+- If the target is an SVG element, use `vector source -> SVG cleanup -> SVG validation -> SVG element CSV`.
+- If the target is a GIF element, use `frame/animation source -> GIF encode -> animation/size validation -> GIF CSV`.
+- Prefer the imagegen background route when natural water surfaces, ripples, light reflections, photographic textures, or realistic backgrounds matter more than HTML/canvas determinism.
+- Read [references/designhub-element-guide-map.md](references/designhub-element-guide-map.md) when you need the full official element-guide link map.
 
 ## Dependencies
 
 - Required for generation: built-in `image_gen` tool.
 - Required for local image processing: Python 3.10+, Pillow, and NumPy when using `scripts/remove_chroma_key.py`.
 - Required for upload-ready PNG elements: Photopea in a Chromium-family browser plus a Photopea runner. Prefer a project-specific runner when one exists; otherwise use `scripts/write_photopea_runner.py`.
+- Required for SVG elements: a true vector source/editor/export path and an XML/SVG validation pass. Do not submit an SVG that only embeds a raster image.
+- Required for GIF elements: a frame or animation source plus a GIF encoder/player that can confirm loop/playback, transparency, dimensions, and file size.
 - Reusable Python code lives in `src/imagegen_chroma_cutout/`; the old package name is kept for script compatibility.
 - Do not use external upload/submission actions unless the user explicitly confirms.
 
@@ -76,6 +81,34 @@ Use for transparent stickers, illustrations, objects, cutouts, PNG elements, bac
 ### `photo-jpg`
 
 Use for real photos that are not background elements. A real photo should not be mislabeled as a background just because it is JPG.
+
+### `svg-element`
+
+Use for simple, color-changeable vector illustrations with a clear subject and fully removed background.
+
+- Use a true vector workflow: hand-authored SVG, vector-editor export, or traced/rebuilt vector art.
+- Keep the illustration simple and use 5 colors or fewer.
+- Prefer SVG over PNG when the same flat design could reasonably be color-editable in MiriCanvas.
+- Do not use SVG for 3D, gradients, photo-like texture, complex raster art, or embedded bitmap output. Route those to `png-element`.
+- Use DesignHub CSV `contentType` value `SVG element`.
+- Remove `.svg` from CSV `fileName`.
+- For extended elements, upload as SVG first, then set the resize type during metadata entry.
+
+### `gif-element`
+
+Use for animated illustration/art elements with a clear subject and fully removed background.
+
+- Use frame or animation source files and encode to `.gif`.
+- The final asset must visibly animate; a still image saved as GIF is not enough.
+- Keep the background removed/transparent wherever the animation format and source allow.
+- Do not treat filmed/video footage as a GIF element. Video belongs to the gated `video-element` route.
+- Use DesignHub CSV `contentType` value `GIF`.
+- Remove `.gif` from CSV `fileName`.
+
+### Gated or editor-only routes
+
+- `video-element`: MP4 video submission requires DesignHub portfolio review and upload permission. Do not promise upload-ready MP4 submission unless the user already has permission.
+- `combination-element`: create in the MiriCanvas editor and register by design document URL. It is not a local file batch produced by this skill.
 
 ## Imagegen Background Workflow
 
@@ -226,6 +259,44 @@ For DesignHub/MiriCanvas PNG element runs:
 
 Skip Photopea for JPG backgrounds unless the user explicitly asks for manual image editing.
 
+## SVG Element Workflow
+
+Use this route when the user asks for SVG elements, vector elements, color-changeable icons, simple stickers, extended elements, speech bubbles, labels, flags, memo notes, or shapes that should resize cleanly.
+
+1. Start from a vector source. If imagegen was used for ideation, rebuild or trace it into real vector shapes before final export.
+2. Remove backgrounds and artboards that would behave like rectangular images.
+3. Keep one clear subject or reusable element. Avoid template-like finished layouts.
+4. Reduce and clean colors to 5 or fewer visible fill/stroke colors.
+5. Avoid embedded raster images, external links, scripts, `foreignObject`, hidden watermarks, text converted from unknown fonts, and stray off-artboard objects.
+6. Export a clean `.svg` with a sensible `viewBox`.
+7. Validate file specs:
+   - SVG extension
+   - at least 72 DPI when the exporting tool exposes DPI
+   - maximum dimension 6000 px
+   - under 150 MB
+8. Write CSV rows with extensionless `fileName`, blank or DesignHub-provided `uniqueId`, `tier` set to `Premium`, and `contentType` set to `SVG element`.
+
+For extended SVG elements, keep the file workflow identical. The extended/basic distinction is selected in metadata as a resize type, not by changing the file extension.
+
+## GIF Element Workflow
+
+Use this route when the user asks for GIF elements, animated stickers, looping illustrations, motion badges, or moving icon-like art.
+
+1. Build or collect frame/animation source files. Preserve them in a source folder.
+2. Keep the subject clear, fully visible, and separated from the background across every frame.
+3. Do not convert filmed footage into a GIF element unless the user explicitly wants a non-DesignHub experiment. DesignHub video is a separate MP4 route with permission gating.
+4. Encode to `.gif` and inspect playback, loop timing, edge residue, and frame-to-frame jitter.
+5. Validate file specs:
+   - GIF extension
+   - visibly animated, not a still GIF
+   - at least 72 DPI when available
+   - minimum 700 px
+   - maximum 1920 px
+   - under 25 MB
+6. Write CSV rows with extensionless `fileName`, blank or DesignHub-provided `uniqueId`, `tier` set to `Premium`, and `contentType` set to `GIF`.
+
+If the requested motion is better represented as filmed video, stop and route it to `video-element`; confirm the user has DesignHub video permission before preparing an MP4 submission batch.
+
 ## Metadata Rules
 
 DesignHub/MiriCanvas metadata should describe what buyers search for, not the production workflow.
@@ -234,7 +305,7 @@ DesignHub/MiriCanvas metadata should describe what buyers search for, not the pr
 - Remove duplicates.
 - Put official topic words and concrete visual terms first.
 - Remove production/process/file/admin terms from `keywords` and `elementName`.
-- Avoid terms such as `Photopea`, `API`, `후처리`, `프롬프트`, `imagegen`, `배경제거`, `PNG`, `JPG`, `2D`, `350DPI`, `투명배경`, run IDs, dates, `DesignHub`, `MiriCanvas`, `CSV`, `Premium`, `클립아트`, `디자인소스`, `배경소스`, `꾸밈요소`.
+- Avoid terms such as `Photopea`, `API`, `후처리`, `프롬프트`, `imagegen`, `배경제거`, `PNG`, `JPG`, `SVG`, `GIF`, `MP4`, `2D`, `350DPI`, `투명배경`, run IDs, dates, `DesignHub`, `MiriCanvas`, `CSV`, `Premium`, `클립아트`, `디자인소스`, `배경소스`, `꾸밈요소`.
 - If the user explicitly keeps or removes a keyword, enforce that across CSV and docs.
 
 CSV content type values:
@@ -282,7 +353,7 @@ py -3 ./scripts/prepare_designhub_unique_upload.py `
   --prefix "<short-topic-slug>-<YYYYMMDD>-<HHmm>"
 ```
 
-For JPG backgrounds, still avoid generic names. Use a topic slug plus timestamp/index, and keep CSV `fileName` extensionless.
+For JPG backgrounds, SVG elements, and GIF elements, still avoid generic names. Use a topic slug plus timestamp/index, and keep CSV `fileName` extensionless.
 
 ## Validation
 
@@ -314,6 +385,27 @@ Run validation suited to the route.
 - CSV basenames and processed/upload PNG basenames match.
 - Keywords are 20 to 25 unique buyer-facing terms.
 
+### SVG element checks
+
+- Final files are SVG, not raster images renamed to `.svg`.
+- XML parses cleanly.
+- No embedded raster `<image>` payloads, scripts, external links, or `foreignObject`.
+- `viewBox` and dimensions are present and within the 6000 px maximum.
+- Visible colors are 5 or fewer.
+- Background is removed; the SVG does not contain a rectangular backdrop unless the element itself is a reusable note/sticker shape.
+- No cracks, stray shapes, hidden off-artboard objects, watermarks, logos, or text artifacts.
+- CSV `contentType` is `SVG element`, and CSV basenames match final SVG basenames without extensions.
+
+### GIF element checks
+
+- Final files are GIF and visibly animated.
+- Dimensions are at least 700 px and at most 1920 px.
+- File size is under 25 MB.
+- Background is removed/transparent where appropriate and does not flicker between frames.
+- Subject remains clear, uncropped, and stable through the loop.
+- It is animated illustration/art, not a video element mislabeled as GIF.
+- CSV `contentType` is `GIF`, and CSV basenames match final GIF basenames without extensions.
+
 If the project provides a validation command, run it when it applies:
 
 ```bash
@@ -331,7 +423,7 @@ If true native transparency appears necessary, ask before switching to CLI/API f
 Report the concrete route and artifacts:
 
 - built-in `image_gen` or CLI fallback
-- deliverable type: `background-jpg`, `png-element`, or `photo-jpg`
+- deliverable type: `background-jpg`, `png-element`, `photo-jpg`, `svg-element`, `gif-element`, `video-element`, or `combination-element`
 - source image folder
 - final image folder
 - metadata CSV path

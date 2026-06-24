@@ -40,7 +40,19 @@
     {
       "id": 7,
       "prompt": "이 스킬을 Windows PC PowerShell에서 써야 해. 투명 PNG helper랑 Photopea runner 명령을 윈도우 경로로 안내해줘.",
-      "expected_output": "Provides Windows PowerShell-safe commands using py -3 or python, ./scripts/... paths, backtick line continuations, quoted portable output paths, and avoids Bash-only environment-variable fallback syntax while keeping the PNG-only DesignHub workflow.",
+      "expected_output": "Provides Windows PowerShell-safe commands using py -3 or python, ./scripts/... paths, backtick line continuations, quoted portable output paths, and avoids Bash-only environment-variable fallback syntax while keeping the transparent PNG DesignHub route distinct from SVG and GIF routes.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "미리캔버스 DesignHub에 올릴 색상 변경 가능한 단순 말풍선 SVG 요소 10개를 만들고 CSV도 준비해줘.",
+      "expected_output": "Routes to svg-element, uses a true vector source/export path instead of raster-only imagegen output, keeps each design simple with five or fewer colors, removes backgrounds, validates SVG XML/viewBox/no embedded raster/no external scripts, and writes metadata with extensionless fileName, blank or DesignHub-provided uniqueId, tier Premium, contentType SVG element, and buyer-facing keywords.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "DesignHub GIF 요소로 움직이는 반짝이 스티커 6개 만들어줘. 영상 말고 일러스트 애니메이션으로.",
+      "expected_output": "Routes to gif-element, builds or preserves frame/animation sources, encodes animated GIFs rather than still GIFs or MP4 footage, verifies playback, loop stability, removed/transparent background, 700-1920 px bounds, under-25MB size, and writes metadata with extensionless fileName and contentType GIF.",
       "files": []
     }
   ]
