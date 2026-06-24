@@ -4,12 +4,14 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/Tygb99/imagen-design-hub?style=social)](https://github.com/Tygb99/imagen-design-hub/stargazers)
 
-Codex skill for creating MiriCanvas / DesignHub raster assets with `image_gen`.
+Codex skill for preparing MiriCanvas / DesignHub assets with `image_gen`, local source art, vector exports, and animation files.
 
-It covers two common routes:
+It covers four common routes:
 
 1. **JPG background elements**: generate natural bitmap backgrounds with built-in `image_gen`, preserve source PNGs, convert to validated JPG, and write DesignHub CSV rows with `contentType=Background`.
 2. **Transparent PNG elements**: generate on a flat chroma-key background, remove the key with the bundled helper, finish upload-ready PNGs through Photopea when needed, and write matching DesignHub metadata.
+3. **SVG elements**: route simple vector illustrations through SVG cleanup, color-count checks, and `contentType=SVG element`.
+4. **GIF elements**: route animated illustration frames through GIF encode/playback checks and `contentType=GIF`.
 
 The skill intentionally keeps source files, final files, review sheets, prompt logs, and CSVs separated so a DesignHub batch can be audited before upload.
 
@@ -50,6 +52,11 @@ Required for upload-ready PNG elements:
 - Photopea in a Chromium-family browser.
 - The bundled `scripts/write_photopea_runner.py` runner generator, unless the current project has a stronger Photopea runner.
 
+Required for SVG/GIF element work:
+
+- A true vector editor/export path for SVG assets.
+- A GIF encoder/player for animation playback, transparency, size, and file-size checks.
+
 ## Repository Layout
 
 - `SKILL.md`: routing and validation instructions.
@@ -60,6 +67,7 @@ Required for upload-ready PNG elements:
 - `scripts/prepare_designhub_unique_upload.py`: upload-safe basename/CSV helper for PNG element batches.
 - `assets/photopea_runner.html`: browser template for the bundled Photopea runner.
 - `evals/evals.json`: routing test prompts.
+- `references/designhub-element-guide-map.md`: official DesignHub element-guide link map and summarized type rules.
 
 ## DesignHub Background JPG Route
 
@@ -119,6 +127,19 @@ python scripts/write_photopea_runner.py \
   --out outputs/<run-id>/photopea/runner.html
 ```
 
+## SVG And GIF Element Routes
+
+Use SVG for simple, color-changeable vector illustrations with a clear subject, fully removed background, and five or fewer colors. Do not submit an SVG that only embeds a raster image.
+
+Use GIF for animated illustration/art elements with a clear subject and removed background. A still image saved as GIF is not enough, and filmed footage belongs to the gated MP4 video route.
+
+CSV rules:
+
+- SVG: `contentType=SVG element`, extensionless `fileName`.
+- GIF: `contentType=GIF`, extensionless `fileName`.
+
+See `references/designhub-element-guide-map.md` for the official element-guide page map, file specs, and combination-element boundaries.
+
 Windows PowerShell:
 
 ```powershell
@@ -132,7 +153,7 @@ py -3 ./scripts/write_photopea_runner.py `
 
 - Use 20 to 25 comma-separated buyer-facing keywords.
 - Remove duplicates.
-- Remove production, file, admin, and filler terms such as `Photopea`, `API`, `imagegen`, `PNG`, `JPG`, `2D`, `350DPI`, run IDs, `DesignHub`, `MiriCanvas`, `CSV`, `Premium`, `clipart`, `design source`, and similar terms.
+- Remove production, file, admin, and filler terms such as `Photopea`, `API`, `imagegen`, `PNG`, `JPG`, `SVG`, `GIF`, `MP4`, `2D`, `350DPI`, run IDs, `DesignHub`, `MiriCanvas`, `CSV`, `Premium`, `clipart`, `design source`, and similar terms.
 - Keep `elementName` short and human-readable.
 
 ## License

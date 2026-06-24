@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Imagen Design Hub</title>
-  <meta name="description" content="Imagegen 기반 MiriCanvas DesignHub JPG 배경과 PNG 요소 제작을 위한 Codex skill landing page.">
+  <meta name="description" content="Imagegen 기반 MiriCanvas DesignHub JPG, PNG, SVG, GIF 요소 제작을 위한 Codex skill landing page.">
   <meta property="og:title" content="Imagen Design Hub">
-  <meta property="og:description" content="DesignHub용 JPG 배경, 투명 PNG 요소, CSV 메타데이터 검증을 한 번의 로컬 워크플로로 정리합니다.">
+  <meta property="og:description" content="DesignHub용 JPG 배경, 투명 PNG 요소, SVG 요소, GIF 요소, CSV 메타데이터 검증을 한 번의 로컬 워크플로로 정리합니다.">
   <meta property="og:image" content="assets/imagegen-workflow-hero.png">
   <link rel="preload" as="image" href="assets/imagegen-workflow-hero.png">
   <style>
@@ -697,7 +697,7 @@
     }
 
     .hero-visual::after {
-      content: "IMAGEGEN / DESIGNHUB / JPG+PNG";
+      content: "IMAGEGEN / DESIGNHUB / JPG+PNG+SVG+GIF";
       position: absolute;
       right: var(--space-5);
       bottom: var(--space-5);
@@ -1062,8 +1062,8 @@
           <span class="eyebrow">MiriCanvas DesignHub automation</span>
           <h1>디자인 자동화의<br><span class="accent-word">새로운 기준</span></h1>
           <p class="hero-copy">
-            imagegen으로 만든 배경 JPG와 투명 PNG 요소를 DesignHub 제출 표면까지 정리합니다.
-            원본 보존, 포맷 변환, CSV 검증, Photopea 마무리를 한 흐름으로 묶었습니다.
+            imagegen 배경 JPG, 투명 PNG 요소, SVG 벡터 요소, GIF 애니메이션 요소를
+            DesignHub 제출 표면까지 정리합니다. 원본 보존, 포맷 검증, CSV 규칙을 한 흐름으로 묶었습니다.
           </p>
           <div class="hero-actions">
             <a class="button button-primary" href="#features">시작하기</a>
@@ -1079,6 +1079,8 @@
           <div class="hero-mini" aria-label="Supported outputs">
             <span>Background JPG</span>
             <span>Transparent PNG</span>
+            <span>SVG element</span>
+            <span>GIF element</span>
             <span>DesignHub CSV</span>
           </div>
         </div>
@@ -1127,6 +1129,34 @@
                 </ul>
               </div>
             </article>
+
+            <article class="feature-card">
+              <div class="feature-media" aria-hidden="true"></div>
+              <div class="feature-body">
+                <span class="badge badge-teal">SVG</span>
+                <h3>SVG 요소 제작</h3>
+                <p>색상 변경 가능한 단순 벡터 요소는 5색 이하, 실제 SVG, 배경 제거 기준으로 검수합니다.</p>
+                <ul class="feature-list">
+                  <li>vector source와 viewBox 확인</li>
+                  <li>embedded raster, script, 외부 링크 차단</li>
+                  <li>SVG element CSV 생성</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-media feature-media-element" aria-hidden="true"></div>
+              <div class="feature-body">
+                <span class="badge badge-coral">GIF</span>
+                <h3>GIF 요소 제작</h3>
+                <p>움직이는 일러스트 요소는 영상과 분리하고, loop playback과 투명 배경 안정성을 확인합니다.</p>
+                <ul class="feature-list">
+                  <li>frame/animation source 보존</li>
+                  <li>700-1920px, 25MB 이하 검증</li>
+                  <li>GIF contentType CSV 생성</li>
+                </ul>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -1148,7 +1178,7 @@
             <article class="workflow-step">
               <strong>02 / PROCESS</strong>
               <h3>Refine</h3>
-              <p>배경은 JPG로 변환하고, 요소는 chroma helper와 Photopea로 alpha 표면을 정리합니다.</p>
+              <p>배경은 JPG로 변환하고, PNG는 alpha 처리, SVG는 벡터 정리, GIF는 playback 검수로 분리합니다.</p>
             </article>
             <article class="workflow-step">
               <strong>03 / DELIVER</strong>
@@ -1162,7 +1192,7 @@
               <h3>텍스트로 남기는 제출 워크플로우</h3>
               <p>
                 이미지는 보기 좋게, 설명은 검수자가 따라갈 수 있게 분리합니다. 아래 순서를 기준으로
-                배경 JPG와 PNG 요소를 나누고 CSV 오류를 업로드 전에 줄입니다.
+                배경 JPG, PNG 요소, SVG 요소, GIF 요소를 나누고 CSV 오류를 업로드 전에 줄입니다.
               </p>
             </div>
             <ol class="workflow-copy-list">
@@ -1180,8 +1210,20 @@
               </li>
               <li>
                 <div>
-                  <strong>요소는 PNG 전용 흐름으로 보냅니다.</strong>
-                  <p>피사체가 있는 이미지는 chroma cutout과 Photopea 마무리로 투명도, crop, DPI를 확인합니다.</p>
+                  <strong>투명 raster 요소는 PNG 흐름으로 보냅니다.</strong>
+                  <p>피사체가 있는 raster 이미지는 chroma cutout과 Photopea 마무리로 투명도, crop, DPI를 확인합니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>단순 벡터는 SVG 흐름으로 보냅니다.</strong>
+                  <p>5색 이하, 실제 vector shape, 배경 제거, viewBox를 확인하고 `SVG element` metadata로 묶습니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>움직이는 일러스트는 GIF 흐름으로 보냅니다.</strong>
+                  <p>영상 footage와 분리하고, loop playback, 크기, 용량, 투명 배경 flicker를 확인합니다.</p>
                 </div>
               </li>
               <li>
@@ -1214,6 +1256,7 @@
                 <li>Pillow 이미지 처리 라이브러리</li>
                 <li>NumPy 크로마키 처리</li>
                 <li>Chromium 기반 브라우저와 Photopea</li>
+                <li>SVG vector export와 GIF encoder/player</li>
               </ul>
             </article>
             <article class="spec-column">
@@ -1221,8 +1264,9 @@
               <ul class="spec-list">
                 <li>고해상도 JPG 배경 이미지</li>
                 <li>투명 alpha PNG 요소</li>
+                <li>단순 vector SVG 요소</li>
+                <li>움직이는 GIF 요소</li>
                 <li>DesignHub CSV 메타데이터</li>
-                <li>프롬프트 로그와 리뷰 시트</li>
               </ul>
             </article>
             <article class="spec-column">
@@ -1232,6 +1276,7 @@
                 <li>업로드 전 uniqueId는 빈칸 유지</li>
                 <li>키워드는 20-25개 사이에서 중복 제거</li>
                 <li>PNG 요소는 WebP 없이 alpha PNG로 유지</li>
+                <li>SVG는 5색 이하, GIF는 움직임과 용량 확인</li>
               </ul>
             </article>
             <article class="spec-column">
@@ -1265,7 +1310,7 @@
 
     <footer class="footer">
       <div class="footer-inner">
-        <div><strong>Imagen Design Hub</strong><br>Codex skill for DesignHub raster asset production.</div>
+        <div><strong>Imagen Design Hub</strong><br>Codex skill for DesignHub JPG, PNG, SVG, and GIF asset production.</div>
         <div class="footer-actions">
           <a class="button button-secondary" href="https://github.com/Tygb99/imagen-design-hub">Repository</a>
           <a class="star-link star-link-footer" href="https://github.com/Tygb99/imagen-design-hub/stargazers" aria-label="View GitHub stars for Imagen Design Hub">
