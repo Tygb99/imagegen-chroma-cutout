@@ -15,6 +15,42 @@ It covers four common routes:
 
 The skill intentionally keeps source files, final files, review sheets, prompt logs, and CSVs separated so a DesignHub batch can be audited before upload.
 
+## Plugin Skill Split
+
+The personal plugin exposes five focused skill entrypoints:
+
+- `png-element`: PNG elements, chroma-key removal, Photopea finishing, and `contentType=PNG element`.
+- `jpg-background`: JPG backgrounds and `contentType=Background`.
+- `svg-beta`: SVG element candidates, kept as a beta route until visual validation passes.
+- `gif-beta`: GIF element candidates, kept as a beta route until playback and transparency validation pass.
+- `upload-csv`: use Computer Use for DesignHub file upload, CSV download, and merged CSV upload while preserving `uniqueId` values.
+
+## Codex Plugin Install
+
+Install the public plugin with:
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Tygb99/imagen-design-hub/main/scripts/install_plugin.sh)"
+```
+
+Manual install:
+
+```bash
+git clone https://github.com/Tygb99/imagen-design-hub.git ~/plugins/imagen-design-hub
+node ~/plugins/imagen-design-hub/scripts/register_marketplace.mjs
+```
+
+The installer registers `~/plugins/imagen-design-hub` in `~/.agents/plugins/marketplace.json`.
+
+## Auto Update
+
+The plugin includes a `SessionStart` hook that checks for updates when Codex starts a new session.
+
+- Auto-update only runs for git checkout installs.
+- The hook uses `git fetch` and `git pull --ff-only`.
+- If local changes are present, the hook skips the update instead of overwriting them.
+- Copy-only installs are left untouched; reinstall with the git-based installer to receive updates.
+
 ## Public Page Previews
 
 - Main page: <https://tygb99.github.io/imagen-design-hub/>

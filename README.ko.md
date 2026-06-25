@@ -15,6 +15,42 @@
 
 이 스킬은 source, final, review sheet, prompt log, CSV를 분리해서 DesignHub 업로드 전에 배치를 검수할 수 있게 합니다.
 
+## 플러그인 스킬 분리
+
+개인 플러그인은 다섯 개의 좁은 스킬 엔트리를 제공합니다.
+
+- `png-element`: PNG 요소, 크로마키 제거, Photopea 마무리, `contentType=PNG element`.
+- `jpg-background`: JPG 배경과 `contentType=Background`.
+- `svg-beta`: SVG 요소 후보. 시각 검증 전까지는 beta 경로로 둡니다.
+- `gif-beta`: GIF 요소 후보. playback과 투명도 검증 전까지는 beta 경로로 둡니다.
+- `upload-csv`: Computer Use로 DesignHub 파일 업로드, CSV 다운로드, 병합 CSV 업로드를 진행하고 `uniqueId`를 보존하는 단계.
+
+## Codex 플러그인 설치
+
+공개 플러그인은 다음 명령으로 설치합니다.
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Tygb99/imagen-design-hub/main/scripts/install_plugin.sh)"
+```
+
+수동 설치:
+
+```bash
+git clone https://github.com/Tygb99/imagen-design-hub.git ~/plugins/imagen-design-hub
+node ~/plugins/imagen-design-hub/scripts/register_marketplace.mjs
+```
+
+설치 스크립트는 `~/plugins/imagen-design-hub`를 `~/.agents/plugins/marketplace.json`에 등록합니다.
+
+## 자동 업데이트
+
+플러그인은 Codex 새 세션 시작 시 업데이트를 확인하는 `SessionStart` hook을 포함합니다.
+
+- 자동 업데이트는 git checkout으로 설치한 경우에만 동작합니다.
+- hook은 `git fetch`와 `git pull --ff-only`를 사용합니다.
+- 로컬 변경사항이 있으면 덮어쓰지 않고 업데이트를 건너뜁니다.
+- 단순 복사 설치본은 건드리지 않습니다. 업데이트를 받으려면 git 기반 설치 스크립트로 다시 설치하세요.
+
 ## 공개 페이지 Preview
 
 - Main page: <https://tygb99.github.io/imagen-design-hub/>

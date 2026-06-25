@@ -1,0 +1,51 @@
+{
+  "name": "imagen-design-hub",
+  "version": "0.2.0",
+  "description": "MiriCanvas and DesignHub asset workflows for PNG elements, JPG backgrounds, SVG/GIF beta routes, and post-upload CSV metadata.",
+  "author": {
+    "name": "Tygb99",
+    "url": "https://github.com/Tygb99"
+  },
+  "homepage": "https://tygb99.github.io/imagen-design-hub/",
+  "repository": "https://github.com/Tygb99/imagen-design-hub",
+  "license": "MIT",
+  "keywords": [
+    "miricanvas",
+    "designhub",
+    "imagegen",
+    "png-element",
+    "jpg-background",
+    "svg",
+    "gif",
+    "csv"
+  ],
+  "skills": "./skills/",
+  "hooks": [
+    "./hooks/session-start-auto-update.json"
+  ],
+  "interface": {
+    "displayName": "Imagen Design Hub",
+    "shortDescription": "Prepare DesignHub PNG, JPG, SVG, GIF, and CSV assets.",
+    "longDescription": "Route MiriCanvas DesignHub work into focused flows for PNG elements, JPG backgrounds, SVG beta elements, GIF beta elements, and post-upload CSV metadata. The plugin reuses the copied chroma-key helper for PNG elements instead of the built-in imagegen removal helper, and requires Computer Use for live DesignHub upload/download CSV UI actions.",
+    "developerName": "Tygb99",
+    "category": "Design",
+    "capabilities": [
+      "Image generation routing",
+      "File preparation",
+      "CSV metadata",
+      "Auto-update"
+    ],
+    "websiteURL": "https://tygb99.github.io/imagen-design-hub/",
+    "defaultPrompt": [
+      "Prepare 10 PNG elements for DesignHub.",
+      "Make JPG background assets and CSV rows.",
+      "Use Computer Use for DesignHub CSV upload."
+    ],
+    "brandColor": "#8000ff",
+    "composerIcon": "./assets/imagegen-workflow-hero.png",
+    "logo": "./assets/imagegen-workflow-hero.png",
+    "screenshots": [
+      "./assets/imagegen-workflow-hero.png"
+    ]
+  }
+}
