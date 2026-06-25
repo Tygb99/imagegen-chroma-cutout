@@ -30,10 +30,16 @@ The personal plugin exposes five focused skill entrypoints:
 Install the public plugin with:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/Tygb99/imagen-design-hub/main/scripts/install_plugin.sh)"
+npx github:Tygb99/imagen-design-hub
 ```
 
-Manual install:
+Non-interactive install:
+
+```bash
+npx --yes github:Tygb99/imagen-design-hub
+```
+
+Manual install without npx:
 
 ```bash
 git clone https://github.com/Tygb99/imagen-design-hub.git ~/plugins/imagen-design-hub

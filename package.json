@@ -1,0 +1,45 @@
+{
+  "name": "imagen-design-hub",
+  "version": "0.2.1",
+  "description": "Codex plugin installer for MiriCanvas and DesignHub asset workflows.",
+  "license": "MIT",
+  "homepage": "https://tygb99.github.io/imagen-design-hub/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tygb99/imagen-design-hub.git"
+  },
+  "keywords": [
+    "codex",
+    "codex-plugin",
+    "miricanvas",
+    "designhub",
+    "imagegen"
+  ],
+  "bin": {
+    "imagen-design-hub": "./bin/install.mjs"
+  },
+  "files": [
+    ".codex-plugin/",
+    "assets/",
+    "bin/",
+    "evals/",
+    "hooks/",
+    "references/",
+    "scripts/",
+    "skills/",
+    "src/",
+    "DESIGN.md",
+    "DESIGN.ko.md",
+    "LICENSE",
+    "LICENSE.ko.md",
+    "README.md",
+    "README.ko.md",
+    "SKILL.md",
+    "SKILL.ko.md",
+    "index.html",
+    "requirements.txt"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

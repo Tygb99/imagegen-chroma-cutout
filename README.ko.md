@@ -30,10 +30,16 @@
 공개 플러그인은 다음 명령으로 설치합니다.
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/Tygb99/imagen-design-hub/main/scripts/install_plugin.sh)"
+npx github:Tygb99/imagen-design-hub
 ```
 
-수동 설치:
+비대화형 설치:
+
+```bash
+npx --yes github:Tygb99/imagen-design-hub
+```
+
+npx 없이 수동 설치:
 
 ```bash
 git clone https://github.com/Tygb99/imagen-design-hub.git ~/plugins/imagen-design-hub
