@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Imagen Design Hub</title>
-  <meta name="description" content="Imagegen 기반 MiriCanvas DesignHub JPG, PNG, SVG, GIF 요소 제작을 위한 Codex skill landing page.">
+  <meta name="description" content="Codex 플러그인 방식으로 설치하는 MiriCanvas DesignHub JPG, PNG, SVG, GIF, CSV 제작 워크플로우.">
   <meta property="og:title" content="Imagen Design Hub">
-  <meta property="og:description" content="DesignHub용 JPG 배경, 투명 PNG 요소, SVG 요소, GIF 요소, CSV 메타데이터 검증을 한 번의 로컬 워크플로로 정리합니다.">
+  <meta property="og:description" content="npx 한 줄로 설치하고 Codex 플러그인으로 DesignHub JPG, PNG, SVG, GIF, CSV 워크플로우를 불러옵니다.">
   <meta property="og:image" content="assets/imagegen-workflow-hero.png">
   <link rel="preload" as="image" href="assets/imagegen-workflow-hero.png">
   <style>
@@ -183,6 +183,15 @@
       grid-template-columns: minmax(0, 0.9fr) minmax(260px, 0.55fr);
       gap: var(--space-12);
       align-items: center;
+    }
+
+    .hero-inner > *,
+    .route-grid > *,
+    .feature-grid > *,
+    .workflow-board > *,
+    .workflow-explainer > *,
+    .spec-grid > * {
+      min-width: 0;
     }
 
     .eyebrow {
@@ -498,6 +507,7 @@
     }
 
     .command-panel {
+      min-width: 0;
       padding: var(--space-5);
       border: 1px solid var(--border-default);
       border-radius: 8px;
@@ -518,6 +528,7 @@
     }
 
     .command-block {
+      min-width: 0;
       border: 1px solid rgba(246, 251, 250, 0.16);
       border-radius: 8px;
       overflow: hidden;
@@ -549,6 +560,16 @@
       white-space: pre;
     }
 
+    :where(p, li) code {
+      padding: 1px 5px;
+      border: 1px solid rgba(246, 251, 250, 0.14);
+      border-radius: 6px;
+      background: rgba(246, 251, 250, 0.08);
+      color: #DFF4EF;
+      font-family: "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
     .copy-button {
       border: 1px solid rgba(246, 251, 250, 0.2);
       border-radius: 8px;
@@ -569,6 +590,11 @@
 
     .copy-button:active {
       transform: translateY(1px);
+    }
+
+    .copy-button[data-copied="true"] {
+      background: rgba(29, 138, 95, 0.28);
+      border-color: rgba(98, 201, 142, 0.52);
     }
 
     .evidence-grid {
@@ -662,6 +688,10 @@
       color: var(--accent-gold);
     }
 
+    .mobile-only {
+      display: none;
+    }
+
     .hero-mini {
       display: flex;
       flex-wrap: wrap;
@@ -687,6 +717,7 @@
 
     .hero-visual {
       margin: 0;
+      min-width: 0;
       min-height: 360px;
       border: 1px solid rgba(246, 251, 250, 0.14);
       border-radius: 8px;
@@ -697,7 +728,7 @@
     }
 
     .hero-visual::after {
-      content: "IMAGEGEN / DESIGNHUB / JPG+PNG+SVG+GIF";
+      content: "CODEX PLUGIN / AUTO UPDATE / DESIGNHUB CSV";
       position: absolute;
       right: var(--space-5);
       bottom: var(--space-5);
@@ -989,6 +1020,10 @@
 
       h1 {
         margin: var(--space-4) 0 var(--space-4);
+        max-width: 100%;
+        font-size: clamp(34px, 10vw, 42px);
+        line-height: 1.08;
+        overflow-wrap: anywhere;
       }
 
       .hero-copy {
@@ -1003,10 +1038,23 @@
 
       .hero-actions {
         margin-top: var(--space-5);
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+        max-width: 260px;
       }
 
       .hero-mini {
         margin-top: var(--space-4);
+      }
+
+      .button,
+      .star-link {
+        width: 100%;
+      }
+
+      .mobile-only {
+        display: block;
       }
 
       .proof-panel {
@@ -1021,6 +1069,21 @@
         white-space: normal;
       }
 
+      .section-title,
+      .cta-section h2 {
+        font-size: clamp(32px, 9vw, 40px);
+        line-height: 1.12;
+        overflow-wrap: anywhere;
+      }
+
+      .hero-visual::after {
+        right: var(--space-3);
+        bottom: var(--space-3);
+        left: var(--space-3);
+        text-align: center;
+        content: "PLUGIN / CSV / UPDATE";
+      }
+
       .matrix {
         grid-template-columns: 1fr;
       }
@@ -1028,6 +1091,31 @@
       .footer-inner {
         align-items: flex-start;
         flex-direction: column;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero,
+      .section {
+        padding-right: var(--space-4);
+        padding-left: var(--space-4);
+      }
+
+      h1 {
+        font-size: clamp(32px, 9vw, 36px);
+      }
+
+      .section-title,
+      .cta-section h2 {
+        font-size: clamp(30px, 8.5vw, 34px);
+      }
+
+      .command-panel {
+        padding: var(--space-4);
+      }
+
+      pre {
+        font-size: 12px;
       }
     }
 
@@ -1050,8 +1138,9 @@
           <span>Imagen</span>
         </a>
         <div class="nav-links">
-          <a href="#features">기능</a>
-          <a href="#workflow">워크플로우</a>
+          <a href="#install">설치</a>
+          <a href="#features">스킬</a>
+          <a href="#workflow">흐름</a>
           <a href="#specs">사양</a>
           <a href="https://github.com/Tygb99/imagen-design-hub">GitHub</a>
         </div>
@@ -1059,15 +1148,15 @@
 
       <div id="top" class="hero-inner">
         <div>
-          <span class="eyebrow">MiriCanvas DesignHub automation</span>
-          <h1>디자인 자동화의<br><span class="accent-word">새로운 기준</span></h1>
+          <span class="eyebrow">Codex plugin install</span>
+          <h1>Codex 플러그인으로<br><span class="accent-word">바뀐 제작<br class="mobile-only"> 파이프라인</span></h1>
           <p class="hero-copy">
-            imagegen 배경 JPG, 투명 PNG 요소, SVG 벡터 요소, GIF 애니메이션 요소를
-            DesignHub 제출 표면까지 정리합니다. 원본 보존, 포맷 검증, CSV 규칙을 한 흐름으로 묶었습니다.
+            npx 한 줄로 설치하고 Codex 시작 때 업데이트를 확인합니다.
+            PNG, JPG, SVG, GIF, CSV 스킬을 필요한 순간에만 불러옵니다.
           </p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#features">시작하기</a>
-            <a class="button button-secondary" href="https://github.com/Tygb99/imagen-design-hub#readme">문서 보기</a>
+            <a class="button button-primary" href="#install">설치 명령 보기</a>
+            <a class="button button-secondary" href="https://github.com/Tygb99/imagen-design-hub#readme">GitHub 보기</a>
             <a class="star-link" href="https://github.com/Tygb99/imagen-design-hub/stargazers" aria-label="View GitHub stars for Imagen Design Hub">
               <svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 3.2l2.7 5.48 6.05.88-4.38 4.27 1.03 6.02L12 17.02l-5.4 2.83 1.03-6.02-4.38-4.27 6.05-.88L12 3.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -1077,11 +1166,10 @@
             </a>
           </div>
           <div class="hero-mini" aria-label="Supported outputs">
-            <span>Background JPG</span>
-            <span>Transparent PNG</span>
-            <span>SVG element</span>
-            <span>GIF element</span>
-            <span>DesignHub CSV</span>
+            <span>GitHub npx installer</span>
+            <span>Marketplace registration</span>
+            <span>SessionStart auto-update</span>
+            <span>5 focused skills</span>
           </div>
         </div>
 
@@ -1092,13 +1180,88 @@
     </header>
 
     <main>
+      <section id="install" class="section section-alt">
+        <div class="section-inner">
+          <h2 class="section-title">이제 스킬 묶음이 아니라 Codex 플러그인입니다.</h2>
+          <p class="section-lead">
+            공개 GitHub installer가 git checkout을 만들고 marketplace에 등록합니다.
+            새 세션이 시작되면 hook이 업데이트를 확인하되, 로컬 변경사항은 덮어쓰지 않습니다.
+          </p>
+
+          <div class="route-grid">
+            <div class="command-panel">
+              <h3>설치 명령</h3>
+              <div class="command-tabs">
+                <div class="command-block">
+                  <div class="command-heading">
+                    <span>Recommended</span>
+                    <button class="copy-button" type="button" data-copy="npx github:Tygb99/imagen-design-hub">Copy</button>
+                  </div>
+                  <pre><code>npx github:Tygb99/imagen-design-hub</code></pre>
+                </div>
+                <div class="command-block">
+                  <div class="command-heading">
+                    <span>Non-interactive</span>
+                    <button class="copy-button" type="button" data-copy="npx --yes github:Tygb99/imagen-design-hub">Copy</button>
+                  </div>
+                  <pre><code>npx --yes github:Tygb99/imagen-design-hub</code></pre>
+                </div>
+                <div class="command-block">
+                  <div class="command-heading">
+                    <span>Manual fallback</span>
+                    <button class="copy-button" type="button" data-copy="git clone https://github.com/Tygb99/imagen-design-hub.git ~/plugins/imagen-design-hub&#10;node ~/plugins/imagen-design-hub/scripts/register_marketplace.mjs">Copy</button>
+                  </div>
+                  <pre><code>git clone https://github.com/Tygb99/imagen-design-hub.git ~/plugins/imagen-design-hub
+node ~/plugins/imagen-design-hub/scripts/register_marketplace.mjs</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="route-stack" aria-label="Plugin install proof">
+              <article class="pipeline-row">
+                <span class="badge badge-green">01</span>
+                <div>
+                  <h3>Git checkout 설치</h3>
+                  <p>installer가 <code>~/plugins/imagen-design-hub</code>에 repo를 clone하거나 ff-only pull로 갱신합니다.</p>
+                </div>
+                <span class="format-note">git pull</span>
+              </article>
+              <article class="pipeline-row">
+                <span class="badge badge-teal">02</span>
+                <div>
+                  <h3>Marketplace 등록</h3>
+                  <p><code>~/.agents/plugins/marketplace.json</code>에 local plugin source를 등록합니다.</p>
+                </div>
+                <span class="format-note">AVAILABLE</span>
+              </article>
+              <article class="pipeline-row">
+                <span class="badge badge-teal">03</span>
+                <div>
+                  <h3>SessionStart 업데이트</h3>
+                  <p>Codex 새 세션에서 <code>git fetch</code>와 <code>git pull --ff-only</code>로 안전하게 업데이트를 확인합니다.</p>
+                </div>
+                <span class="format-note">hook</span>
+              </article>
+              <article class="pipeline-row">
+                <span class="badge badge-coral">04</span>
+                <div>
+                  <h3>분리된 엔트리포인트</h3>
+                  <p>PNG, JPG, SVG, GIF, upload-csv가 독립 스킬로 로드되어 필요한 문맥만 씁니다.</p>
+                </div>
+                <span class="format-note">5 skills</span>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="features" class="section">
         <div class="section-inner">
           <p class="section-kicker">Core features</p>
-          <h2 class="section-title">프리미엄 디자인 자산 생성부터 제출 전 검수까지 자동화합니다.</h2>
+          <h2 class="section-title">다섯 개의 플러그인 스킬로 필요한 작업만 로드합니다.</h2>
           <p class="section-lead">
-            배경과 요소는 요구 포맷이 다릅니다. 이 스킬은 생성 품질보다 먼저 깨지는 파일명,
-            uniqueId, contentType, DPI, 키워드 기준을 한 화면에서 정리합니다.
+            배경, 투명 PNG, 벡터, 애니메이션, CSV 업로드는 실패 지점이 다릅니다.
+            플러그인 방식은 각 route를 좁게 나누고, 실제 제출 표면에 맞는 규칙만 불러옵니다.
           </p>
 
           <div class="feature-grid">
@@ -1106,8 +1269,8 @@
               <div class="feature-media" aria-hidden="true"></div>
               <div class="feature-body">
                 <span class="badge badge-teal">JPG</span>
-                <h3>JPG 배경 생성</h3>
-                <p>수면, 종이 질감, 빛 반사처럼 full-bleed 배경에 맞는 source를 보존하고 최종 JPG와 CSV를 분리합니다.</p>
+                <h3>jpg-background</h3>
+                <p>수면, 종이 질감, 빛 반사처럼 full-bleed 배경에 맞는 source를 보존하고 <code>Background</code> CSV로 보냅니다.</p>
                 <ul class="feature-list">
                   <li>source PNG 보존</li>
                   <li>최종 JPG와 Background CSV 생성</li>
@@ -1120,12 +1283,12 @@
               <div class="feature-media feature-media-element" aria-hidden="true"></div>
               <div class="feature-body">
                 <span class="badge badge-green">PNG</span>
-                <h3>투명 PNG 처리</h3>
-                <p>크로마키 제거와 Photopea 마무리 흐름을 분리해, alpha PNG 요소가 업로드 전 표면을 잃지 않게 합니다.</p>
+                <h3>png-element</h3>
+                <p>개별 source 생성, edge-connected 배경제거, Photopea 마무리로 alpha PNG 요소 품질을 지킵니다.</p>
                 <ul class="feature-list">
-                  <li>자동 크로마키 제거</li>
-                  <li>Photopea crop, resize, DPI 마무리</li>
-                  <li>PNG element CSV 생성</li>
+                  <li>1개씩 개별 source 생성</li>
+                  <li>피사체 내부 색 보존</li>
+                  <li>계단현상과 anti-aliasing 확대 검수</li>
                 </ul>
               </div>
             </article>
@@ -1134,7 +1297,7 @@
               <div class="feature-media" aria-hidden="true"></div>
               <div class="feature-body">
                 <span class="badge badge-teal">SVG</span>
-                <h3>SVG 요소 제작</h3>
+                <h3>svg-beta</h3>
                 <p>색상 변경 가능한 단순 벡터 요소는 5색 이하, 실제 SVG, 배경 제거 기준으로 검수합니다.</p>
                 <ul class="feature-list">
                   <li>vector source와 viewBox 확인</li>
@@ -1148,7 +1311,7 @@
               <div class="feature-media feature-media-element" aria-hidden="true"></div>
               <div class="feature-body">
                 <span class="badge badge-coral">GIF</span>
-                <h3>GIF 요소 제작</h3>
+                <h3>gif-beta</h3>
                 <p>움직이는 일러스트 요소는 영상과 분리하고, loop playback과 투명 배경 안정성을 확인합니다.</p>
                 <ul class="feature-list">
                   <li>frame/animation source 보존</li>
@@ -1164,38 +1327,51 @@
       <section id="workflow" class="section section-alt">
         <div class="section-inner">
           <p class="section-kicker">Workflow</p>
-          <h2 class="section-title">세 단계로 끝나는 간단하고 강력한 프로세스</h2>
+          <h2 class="section-title">설치, 라우팅, CSV 왕복을 분리합니다.</h2>
           <p class="section-lead">
-            생성, 처리, 제출 준비를 분리해서 실패 원인을 빠르게 찾고, 같은 배치를 다시 만들 수 있게 합니다.
+            플러그인은 설치와 업데이트를 맡고, 각 스킬은 파일 생성과 검증만 좁게 처리합니다.
+            DesignHub 업로드 후에는 내려받은 CSV를 기준으로 uniqueId를 보존합니다.
           </p>
 
           <div class="workflow-board" aria-label="Imagen Design Hub workflow">
             <article class="workflow-step">
-              <strong>01 / PROMPT</strong>
-              <h3>Generate</h3>
-              <p>imagegen source를 생성하고 프롬프트, 원본, batch 경로를 분리해 보존합니다.</p>
+              <strong>01 / INSTALL</strong>
+              <h3>Register</h3>
+              <p>GitHub installer가 plugin root를 준비하고 Codex marketplace에 local source로 등록합니다.</p>
             </article>
             <article class="workflow-step">
-              <strong>02 / PROCESS</strong>
-              <h3>Refine</h3>
-              <p>배경은 JPG로 변환하고, PNG는 alpha 처리, SVG는 벡터 정리, GIF는 playback 검수로 분리합니다.</p>
+              <strong>02 / ROUTE</strong>
+              <h3>Load</h3>
+              <p>요청에 맞춰 <code>png-element</code>, <code>jpg-background</code>, <code>svg-beta</code>, <code>gif-beta</code>, <code>upload-csv</code>만 선택합니다.</p>
             </article>
             <article class="workflow-step">
-              <strong>03 / DELIVER</strong>
-              <h3>Validate</h3>
-              <p>DesignHub CSV의 fileName, uniqueId, contentType, 키워드 수를 업로드 전에 검증합니다.</p>
+              <strong>03 / ROUNDTRIP</strong>
+              <h3>Merge</h3>
+              <p>업로드 후 DesignHub CSV를 다운로드하고 전체 행과 uniqueId를 보존해 metadata를 병합합니다.</p>
             </article>
           </div>
 
           <div class="workflow-explainer" aria-label="Text workflow guide">
             <div class="workflow-copy">
-              <h3>텍스트로 남기는 제출 워크플로우</h3>
+              <h3>플러그인 방식으로 남기는 제출 워크플로우</h3>
               <p>
-                이미지는 보기 좋게, 설명은 검수자가 따라갈 수 있게 분리합니다. 아래 순서를 기준으로
-                배경 JPG, PNG 요소, SVG 요소, GIF 요소를 나누고 CSV 오류를 업로드 전에 줄입니다.
+                설치는 플러그인이 책임지고, 산출물 처리는 route별 스킬이 책임집니다.
+                외부 서비스 상태를 바꾸는 파일 업로드와 CSV 업로드는 Computer Use로 확인합니다.
               </p>
             </div>
             <ol class="workflow-copy-list">
+              <li>
+                <div>
+                  <strong>npx 또는 수동 clone으로 설치합니다.</strong>
+                  <p>git checkout 기반 설치를 사용하면 Codex 새 세션에서 안전한 자동 업데이트를 받을 수 있습니다.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>요청에 맞는 스킬만 로드합니다.</strong>
+                  <p>PNG, JPG, SVG, GIF, CSV 업로드 route가 분리되어 과한 문맥 없이 정확한 규칙을 적용합니다.</p>
+                </div>
+              </li>
               <li>
                 <div>
                   <strong>원본과 프롬프트를 먼저 보존합니다.</strong>
@@ -1204,32 +1380,20 @@
               </li>
               <li>
                 <div>
-                  <strong>배경은 JPG 전용 흐름으로 보냅니다.</strong>
-                  <p>수면, 물빛, 패턴처럼 화면을 채우는 이미지는 JPG로 저장하고 배경용 metadata만 연결합니다.</p>
+                  <strong>투명 PNG는 개별 source 기준으로 처리합니다.</strong>
+                  <p>combined sheet crop을 피하고, 배경제거 후 내부 디테일과 anti-aliasing을 확대 검수합니다.</p>
                 </div>
               </li>
               <li>
                 <div>
-                  <strong>투명 raster 요소는 PNG 흐름으로 보냅니다.</strong>
-                  <p>피사체가 있는 raster 이미지는 chroma cutout과 Photopea 마무리로 투명도, crop, DPI를 확인합니다.</p>
+                  <strong>DesignHub CSV는 다운로드본을 기준으로 병합합니다.</strong>
+                  <p>fileName과 uniqueId는 DesignHub가 내려준 전체 CSV를 source of truth로 삼습니다.</p>
                 </div>
               </li>
               <li>
                 <div>
-                  <strong>단순 벡터는 SVG 흐름으로 보냅니다.</strong>
-                  <p>5색 이하, 실제 vector shape, 배경 제거, viewBox를 확인하고 `SVG element` metadata로 묶습니다.</p>
-                </div>
-              </li>
-              <li>
-                <div>
-                  <strong>움직이는 일러스트는 GIF 흐름으로 보냅니다.</strong>
-                  <p>영상 footage와 분리하고, loop playback, 크기, 용량, 투명 배경 flicker를 확인합니다.</p>
-                </div>
-              </li>
-              <li>
-                <div>
-                  <strong>CSV는 DesignHub 규칙에 맞춥니다.</strong>
-                  <p>fileName에는 확장자를 빼고, uniqueId는 업로드 후 받은 값을 유지하며, 키워드는 20~25개로 정리합니다.</p>
+                  <strong>외부 업로드 상태를 분리해 보고합니다.</strong>
+                  <p>파일 업로드, CSV 업로드, 최종 심사 제출은 같은 완료 상태가 아니므로 각각 따로 확인합니다.</p>
                 </div>
               </li>
               <li>
@@ -1246,37 +1410,37 @@
       <section id="specs" class="section">
         <div class="section-inner">
           <p class="section-kicker">Technical specs</p>
-          <h2 class="section-title">제출 전에 확인할 기준을 작게, 또렷하게 남겼습니다.</h2>
+          <h2 class="section-title">플러그인 설치와 제출 전 검증 기준을 작게 남겼습니다.</h2>
 
           <div class="spec-grid">
             <article class="spec-column">
               <h3>의존성</h3>
               <ul class="spec-list">
-                <li>Python 3.10 이상</li>
-                <li>Pillow 이미지 처리 라이브러리</li>
-                <li>NumPy 크로마키 처리</li>
-                <li>Chromium 기반 브라우저와 Photopea</li>
-                <li>SVG vector export와 GIF encoder/player</li>
+                <li>Node 18 이상과 git</li>
+                <li>Codex 또는 compatible agent runtime</li>
+                <li>Python 3.10 이상과 Pillow</li>
+                <li>PNG 마무리용 Chromium 브라우저와 Photopea</li>
+                <li>실제 DesignHub UI 작업용 Computer Use</li>
               </ul>
             </article>
             <article class="spec-column">
               <h3>출력 형식</h3>
               <ul class="spec-list">
-                <li>고해상도 JPG 배경 이미지</li>
-                <li>투명 alpha PNG 요소</li>
-                <li>단순 vector SVG 요소</li>
-                <li>움직이는 GIF 요소</li>
-                <li>DesignHub CSV 메타데이터</li>
+                <li><code>jpg-background</code> route</li>
+                <li><code>png-element</code> route</li>
+                <li><code>svg-beta</code> route</li>
+                <li><code>gif-beta</code> route</li>
+                <li><code>upload-csv</code> route</li>
               </ul>
             </article>
             <article class="spec-column">
               <h3>검증 기준</h3>
               <ul class="spec-list">
-                <li>fileName은 확장자 없이 stem만 사용</li>
-                <li>업로드 전 uniqueId는 빈칸 유지</li>
+                <li>파일 업로드 후 DesignHub CSV 다운로드</li>
+                <li>uniqueId 보존 병합</li>
                 <li>키워드는 20-25개 사이에서 중복 제거</li>
-                <li>PNG 요소는 WebP 없이 alpha PNG로 유지</li>
-                <li>SVG는 5색 이하, GIF는 움직임과 용량 확인</li>
+                <li>PNG 요소는 alpha와 edge 품질 확대 확인</li>
+                <li>최종 심사 제출은 별도 사용자 확인 필요</li>
               </ul>
             </article>
             <article class="spec-column">
@@ -1286,6 +1450,7 @@
                 <li>macOS, Linux, Windows PowerShell 예시 포함</li>
                 <li>한국어와 영어 스킬 문서 유지</li>
                 <li>GitHub Pages 공개 랜딩 페이지 지원</li>
+                <li>Git checkout 설치본 자동 업데이트 hook 포함</li>
               </ul>
             </article>
           </div>
@@ -1293,10 +1458,11 @@
       </section>
 
       <section class="cta-section" aria-label="Get started">
-        <h2>지금 시작하세요</h2>
-        <p>Imagen Design Hub로 DesignHub 이미지 제작 흐름을 더 단순하게 만들고, 제출 전 실패 지점을 먼저 줄이세요.</p>
+        <h2>플러그인으로 설치하고 시작하세요</h2>
+        <p>Imagen Design Hub를 Codex 플러그인으로 등록하면 다음 세션부터 route별 스킬과 업데이트 hook을 함께 사용할 수 있습니다.</p>
         <div class="hero-actions cta-actions">
-          <a class="button button-primary" href="https://github.com/Tygb99/imagen-design-hub#readme">문서 읽기</a>
+          <a class="button button-primary" href="#install">설치 명령 보기</a>
+          <a class="button button-secondary" href="https://github.com/Tygb99/imagen-design-hub#readme">GitHub 보기</a>
           <a class="star-link" href="https://github.com/Tygb99/imagen-design-hub/stargazers" aria-label="View GitHub stars for Imagen Design Hub">
             <svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 3.2l2.7 5.48 6.05.88-4.38 4.27 1.03 6.02L12 17.02l-5.4 2.83 1.03-6.02-4.38-4.27 6.05-.88L12 3.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -1310,7 +1476,7 @@
 
     <footer class="footer">
       <div class="footer-inner">
-        <div><strong>Imagen Design Hub</strong><br>Codex skill for DesignHub JPG, PNG, SVG, and GIF asset production.</div>
+        <div><strong>Imagen Design Hub</strong><br>Codex plugin for DesignHub JPG, PNG, SVG, GIF, and CSV asset production.</div>
         <div class="footer-actions">
           <a class="button button-secondary" href="https://github.com/Tygb99/imagen-design-hub">Repository</a>
           <a class="star-link star-link-footer" href="https://github.com/Tygb99/imagen-design-hub/stargazers" aria-label="View GitHub stars for Imagen Design Hub">
@@ -1353,6 +1519,30 @@
       }
     }
 
+    function bindCopyButtons() {
+      const buttons = document.querySelectorAll("[data-copy]");
+      for (const button of buttons) {
+        button.addEventListener("click", async () => {
+          const value = button.getAttribute("data-copy") || "";
+          try {
+            await navigator.clipboard.writeText(value);
+            button.textContent = "Copied";
+            button.setAttribute("data-copied", "true");
+            window.setTimeout(() => {
+              button.textContent = "Copy";
+              button.removeAttribute("data-copied");
+            }, 1400);
+          } catch {
+            button.textContent = "Select";
+            window.setTimeout(() => {
+              button.textContent = "Copy";
+            }, 1400);
+          }
+        });
+      }
+    }
+
+    bindCopyButtons();
     updateStarCounts();
   </script>
 </body>
