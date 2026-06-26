@@ -5,6 +5,8 @@ description: Use after MiriCanvas or DesignHub element files are ready for uploa
 
 # Imagen Design Hub: Upload Then CSV
 
+[Korean version](SKILL.ko.md)
+
 Use this route when the user says `요소 업로드후 csv업로드`, `uplode-csv`, `upload-csv`, DesignHub upload CSV, metadata upload, CSV merge, uniqueId preservation, or post-upload DesignHub metadata.
 
 This skill is for the post-file-upload metadata phase. It should not silently submit a DesignHub review.
@@ -26,9 +28,12 @@ Any live DesignHub UI action in this route must use `computer-use`.
 1. Use `computer-use` to upload the prepared image/vector/GIF files only when the user has explicitly confirmed the external DesignHub action.
 2. Use `computer-use` to download the CSV provided by DesignHub after file upload.
 3. Treat the downloaded CSV as the source of truth for `fileName` and `uniqueId`.
-4. Merge prepared metadata into the downloaded rows without dropping or regenerating `uniqueId`.
+4. Merge prepared metadata into the downloaded rows without dropping, reordering unnecessarily, or regenerating `uniqueId`.
 5. Keep the CSV no-BOM and quote all fields.
 6. Use `computer-use` to re-upload the merged CSV only when the user has explicitly confirmed that external action.
+7. Verify the DesignHub completion message or banner after CSV upload. Record the processed row count, and distinguish file upload, CSV upload, and final review submission.
+
+Do not upload a local preupload CSV directly after files are registered. DesignHub assigns `uniqueId` values only after the file upload, so the correct flow is always download the current DesignHub CSV, merge into that full file, and upload the merged full CSV.
 
 ## Content Type Values
 
@@ -61,10 +66,12 @@ Before reporting ready:
 - row count matches DesignHub's downloaded CSV
 - all `uniqueId` values from the downloaded CSV are preserved
 - all final `fileName` values map to uploaded files
+- the merged CSV keeps every row from the downloaded DesignHub CSV, not just the new batch rows
 - `contentType` values are from the official list
 - no duplicate keywords remain within each row
 - keyword counts are 20 to 25 per row
 - CSV encoding is UTF-8 without BOM
 - every field is quoted if the local project contract requires quote-all CSV
 - live DesignHub file upload, CSV download, and CSV upload were performed through `computer-use`
+- DesignHub displayed a successful processed-row count or an error message was captured verbatim
 - state clearly whether file upload, CSV upload, or final review submission actually happened

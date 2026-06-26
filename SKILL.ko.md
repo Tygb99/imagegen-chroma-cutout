@@ -72,6 +72,7 @@ outputs/<run-id>/logs/
 투명 스티커, 일러스트, 오브젝트, 컷아웃, PNG 요소, 배경 제거, alpha가 필요한 산출물에 사용한다.
 
 - 제거 가능한 단색 크로마키 배경으로 생성한다.
+- 독립 PNG 요소를 여러 개 만들 때는 요소마다 source 이미지를 따로 생성한다. 여러 요소를 한 장에 몰아 만든 뒤 잘라 쓰지 않는다. 분리 후 확대하면 계단현상과 약한 anti-aliasing이 드러날 수 있다.
 - source 이미지는 `assets/source-imagegen/`에 보존한다.
 - 복사된 `scripts/chroma_key.py` helper를 실행해 `assets/raw/`로 출력한다. DesignHub PNG 요소 작업에서는 built-in `.system/imagegen`의 `remove_chroma_key.py` helper를 사용하지 않는다.
 - DesignHub/MiriCanvas 업로드용 PNG 요소라면 Photopea 또는 프로젝트 Photopea runner를 실행해 `assets/processed/`를 만든다.
@@ -166,7 +167,7 @@ Constraints: no text, no logo, no watermark, no people, no objects, no transpare
 2. built-in `image_gen`으로 완전히 평평한 key-color 배경에 생성한다.
 3. 생성 source를 작업 폴더로 복사한다.
 4. 복사된 `scripts/chroma_key.py` helper를 실행한다.
-5. alpha, 투명 모서리, 피사체 범위, key-color fringe를 검증한다.
+5. alpha, 투명 모서리, 피사체 범위, key-color fringe, 피사체 내부 디테일 보존, anti-aliased edge를 체크보드/흰색/어두운 배경 preview에서 검증한다.
 6. DesignHub/MiriCanvas 업로드용 PNG 요소라면 Photopea finishing을 실행하고 `assets/processed/`를 검증한다.
 7. 업로드 안전 고유 파일명과 매칭 CSV를 준비한다.
 
@@ -237,6 +238,8 @@ python scripts/chroma_key.py \
 ```
 
 tolerance를 높이는 것은 key color가 피사체와 겹치지 않는다고 확인한 뒤에만 한다. key color가 피사체와 충돌하면 tolerance를 넓히지 말고 프롬프트/배경색을 바꾼다.
+
+contact sheet는 검토용 산출물일 뿐이다. 여러 오브젝트가 들어간 sheet에서 최종 업로드 PNG를 잘라 만들지 않는다. 독립 요소가 분리 후 jagged하게 보이면 원래 per-element source로 돌아가거나 요소별로 다시 생성한다.
 
 ## Photopea 처리
 
@@ -336,6 +339,17 @@ Background
 
 DesignHub CSV에는 `JPG background`라고 쓰지 않는다. `Background`를 사용한다.
 
+## DesignHub CSV 왕복
+
+실제 파일 업로드 후에는 DesignHub에서 내려받은 CSV가 `fileName`과 `uniqueId`의 기준이다. 파일 등록 후 로컬 preupload CSV를 그대로 올리지 않는다.
+
+1. 사용자 확인 후 승인된 UI 경로로 파일을 업로드한다.
+2. 현재 DesignHub CSV를 다운로드한다.
+3. 다운로드한 전체 CSV에 준비한 메타데이터를 병합하되 기존 모든 행과 모든 `uniqueId`를 보존한다.
+4. 병합한 전체 CSV를 UI로 업로드한다.
+5. DesignHub 완료 메시지나 배너를 확인하고 처리된 행 수를 기록한다.
+6. 파일 업로드, CSV 업로드, 최종 심사 제출 여부를 각각 따로 말한다. 사용자가 별도 단계로 요청하지 않으면 최종 심사 제출은 누르지 않는다.
+
 ## 업로드 안전 파일명
 
 PNG 요소는 DesignHub에서 이전 시도에 사용한 이름 때문에 거절될 수 있다. 업로드 전에 별도 고유 이름 폴더와 매칭 CSV를 만든다.
@@ -394,6 +408,9 @@ JPG 배경, SVG 요소, GIF 요소도 generic name은 피한다. topic slug와 t
 - 최종 파일이 alpha가 있는 PNG다.
 - 모서리가 투명하고 피사체 범위가 그럴듯하다.
 - 눈에 띄는 key-color fringe가 없다.
+- key color와 비슷하다는 이유로 피사체 내부 디테일이 지워지지 않았다.
+- 확대 검수에서 edge가 계단형이 아니라 anti-aliased 상태다.
+- 최종 업로드 파일을 결합된 contact sheet에서 잘라 만들지 않았다.
 - 체크보드, 흰색, 어두운 배경 preview가 통과한다.
 - 업로드용 PNG 요소를 요청받았다면 Photopea processed 출력이 존재한다.
 - PNG 요소 크기/DPI가 로컬 프로젝트 규칙과 맞는다.
